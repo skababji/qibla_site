@@ -39,7 +39,14 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
         if (data.error) {
             document.getElementById('results').textContent = data.error;
         } else {
-            document.getElementById('results').innerHTML = 'Your city coordinates: ' + data.city_coords + '<br>Rhumb Line Bearing: ' + data.rhumb_bearing + ' degrees<br>Distance to Mecca: ' + data.rhumb_distance + ' km';
+            document.getElementById('results').innerHTML = 'Your city coordinates: ' + data.city_coords + '<br><br>' +
+            'Rhumb Line Bearing: ' + data.rhumb_bearing + ' degrees<br>' +
+            'Rhumb Line Distance: ' + data.rhumb_distance + ' km<br><br>' +
+            'Great Circle Initial Bearing: ' + data.gc_initial_bearing + ' degrees<br>' +
+            'Great Circle Final Bearing: ' + data.gc_final_bearing + ' degrees<br>' +
+            'Great Circle Distance: ' + data.gc_distance + ' km';
         }
+        
+        
     });
 });

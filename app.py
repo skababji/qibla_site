@@ -36,13 +36,23 @@ def calculate_bearing():
     i_sphr = LatLon_s(loc.latitude, loc.longitude)
     m_sphr = LatLon_s(mecca.latitude, mecca.longitude)
     
+    #rhumb line calc
     rhumb_bearing = round(i_sphr.rhumbBearingTo(m_sphr), 0)
     rhumb_dist = round(i_sphr.rhumbDistanceTo(m_sphr) / 1000, 0)
+    
+    #great circlecalc
+    gc_initial_bearing=round(i_elps.initialBearingTo(m_elps), 0)
+    gc_final_bearing=str(round(i_elps.finalBearingTo(m_elps), 0))
+    gc_dist=round(i_elps.distanceTo(m_elps)/1000, 0)
+
     
     return jsonify({
         "rhumb_bearing": rhumb_bearing,
         "rhumb_distance": rhumb_dist,
-        "city_coords": f"{loc.latitude}, {loc.longitude}"
+        "city_coords": f"{loc.latitude}, {loc.longitude}",
+        "gc_initial_bearing":gc_initial_bearing,
+        "gc_final_bearing":gc_final_bearing,
+        "gc_distance": gc_dist
     })
 
 if __name__ == '__main__':
