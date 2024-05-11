@@ -1,6 +1,14 @@
+/* styles.css */
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
+    font-size: 16px;
 }
+
+a {
+    color: #0000FF; /* Default blue color for links */
+}
+
+
 
 .sidebar {
     float: left;
