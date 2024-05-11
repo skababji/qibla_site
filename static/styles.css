@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    float: left;
+    width: 250px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    height: 100vh;
+}
+
+.content {
+    margin-left: 250px;
+    padding: 20px;
+}
+
+select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
