@@ -20,3 +20,12 @@ select, button {
     padding: 10px;
     margin-top: 10px;
 }
+
+
+#compass {
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
