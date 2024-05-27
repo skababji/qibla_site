@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
+        <div class="content">
             <h1>Qibla in North America</h1>
             <select id="countrySelect" name="country">
                 <option value="">Select your country</option>
@@ -21,19 +21,43 @@
                 <option value="">Select your city</option>
             </select>
             <button id="calculateButton" style="display: none;">Calculate Bearing</button>
-            <div id="compass"></div>
             <div id="results"></div>
         </div>
-        <div class="content">
-            <span>
-                I believe that the Qibla in NA is toward <strong>East/Southeast</strong> <em>NOT</em> because the earth is flat or I hate science, <em>but</em> because any calculations, whenever used, shall conform to <em>both</em> the <em>objectives</em> and the <em>means</em> as defined by the honorable Shariah.
-            </span>
-            <span>
-                This is why I follow the <em>constant</em> bearing of the <strong>rhumb line</strong> and <em>NOT</em> the initial bearing of the great circle which completely ignores the frame of reference as defined by the honorable Shariah.
-            </span>
-            <span>
-                It is imperative that neither the great circle nor the rhumb line calculations are required to find the direction of the qibla in North America. These mathematical constructs involve several implicit and explicit assumptions. In essence, and as once stated by <a href="https://en.wikipedia.org/wiki/George_E._P._Box">George Box</a>, all models are wrong but some are useful. Above all, driving Muslim laymen to this level of complication reflects the unprecedented weakness of Islamic scholarship in favor of scientific advancement.
-            </span>
+        <div class="sidebar">
+            <h1>Brief Explanation</h1>
+            <div class="text-content">
+                <p>I believe that the Qibla in NA is toward <strong>East/Southeast</strong> <em>NOT</em> because the earth is flat or I hate science, <em>but</em> because any calculations, whenever used, shall conform to <em>both</em> the <em>objectives</em> and the <em>means</em> as defined by the honorable Shariah.</p>
+                <p>This is why I follow the <em>constant</em> bearing of the <strong>rhumb line</strong> and <em>NOT</em> the initial bearing of the great circle which completely ignores the frame of reference as defined by the honorable Shariah.</p>
+                <p>It is imperative that neither the great circle nor the rhumb line calculations are required to find the direction of the qibla in North America. These mathematical constructs involve several implicit and explicit assumptions. In essence, and as once stated by <a href="https://en.wikipedia.org/wiki/George_E._P._Box">George Box</a>, all models are wrong but some are useful. Above all, driving Muslim laymen to this level of complication reflects the unprecedented weakness of Islamic scholarship in favor of scientific advancement.</p>
+            </div>
+        </div>
+    </div>
+    <div class="compass-container" id="compassContainer">
+        <div class="compass-content">
+            <div class="compass">
+                <h2>Rhumb Line</h2>
+                <div id="compass1"></div>
+            </div>
+            <div class="results-content" id="rhumbResults" style="display: none;">
+                <h2>Results</h2>
+                <p id="rhumbResultsText"></p>
+            </div>
+        </div>
+        <div class="compass-content">
+            <div class="compass">
+                <h2>Great Circle Line</h2>
+                <div id="compass2"></div>
+            </div>
+            <div class="results-content" id="greatCircleResults" style="display: none;">
+                <h2>Results</h2>
+                <p id="greatCircleResultsText"></p>
+                <div id="bearingPathContainer" style="display: none;">
+                    <h3>Bearing Path</h3>
+                    <label for="bearingSlider">Initial Bearing</label>
+                    <input type="range" id="bearingSlider" min="0" max="360" value="0" style="width: 100%; margin-top: 10px;">
+                    <label for="bearingSlider" style="float: right;">Final Bearing</label>
+                </div>
+            </div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
