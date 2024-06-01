@@ -43,11 +43,11 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
             
             const rhumbResults = document.getElementById('rhumbResults');
             const greatCircleResults = document.getElementById('greatCircleResults');
-            document.getElementById('rhumbResultsText').innerHTML = 'Rhumb Line Bearing: ' + data.rhumb_bearing + ' degrees<br>' +
-                                     'Rhumb Line Distance: ' + data.rhumb_distance + ' km';
-            document.getElementById('greatCircleResultsText').innerHTML = 'Great Circle Initial Bearing: ' + data.gc_initial_bearing + ' degrees<br>' +
-                                           'Great Circle Final Bearing: ' + data.gc_final_bearing + ' degrees<br>' +
-                                           'Great Circle Distance: ' + data.gc_distance + ' km';
+            document.getElementById('rhumbResultsText').innerHTML = 'Bearing Angle: ' + data.rhumb_bearing + ' degrees<br>' +
+                                     'Distance: ' + data.rhumb_distance + ' km';
+            document.getElementById('greatCircleResultsText').innerHTML = 'Initial Bearing Angle: ' + data.gc_initial_bearing + ' degrees<br>' +
+                                           'Final Bearing Angle: ' + data.gc_final_bearing + ' degrees<br>' +
+                                           'Distance: ' + data.gc_distance + ' km';
             
             rhumbResults.style.display = 'block';
             greatCircleResults.style.display = 'block';
@@ -64,15 +64,25 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
             slider.min = data.gc_initial_bearing;
             slider.max = data.gc_final_bearing;
             slider.value = data.gc_initial_bearing;
-            slider.style.display = 'block'; // Show the slider
 
-            const bearingPathContainer = document.getElementById('bearingPathContainer');
-            bearingPathContainer.style.display = 'block'; // Show the bearing path container
+            const sliderContainer = document.querySelector('.bearing-slider-container');
+            sliderContainer.classList.add('show'); // Add 'show' class to display the container
+
+            // Set the start label to city, country
+            document.getElementById('startLabel').textContent = `${city}, ${country}`;
 
             slider.addEventListener('input', function() {
+                console.log('Slider value:', slider.value);
                 compassContainer2.innerHTML = ''; // Clear previous compass
                 compassContainer2.appendChild(drawCompass(parseFloat(slider.value))); // Update compass with slider value
             });
+
+            // Scroll to the compass container
+            document.querySelector('.compass-container').scrollIntoView({ behavior: 'smooth' });
+
+            // Show the note text
+            document.getElementById('rhumbNote').style.display = 'block';
+            document.getElementById('greatCircleNote').style.display = 'block';
         }
     });
 });
@@ -176,4 +186,3 @@ function drawCompass(bearing) {
 
     return canvas;
 }
-

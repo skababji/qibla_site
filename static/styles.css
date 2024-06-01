@@ -57,3 +57,216 @@ select {
     font-size: 18px;
     text-align: center;
 }
+
+#signature {
+    text-align: right;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.content, .sidebar, .compass-content, .results-content {
+    flex: 2;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.text-content {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.results-content {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 20px;
+}
+
+#bearingSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(100% - 40px); /* Adjust width to match results container */
+    height: 10px;
+    background: #009688;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .15s ease-in-out;
+}
+
+#bearingSlider:hover {
+    opacity: 1;
+}
+
+#bearingSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#bearingSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+}
+
+.compass-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 20px auto;
+    position: relative;
+    flex: 2;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.compass {
+    flex: 1;
+}
+
+.results-content {
+    flex: 1;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.compass-content h2 {
+    margin-left: 20px;
+}
+
+.compass-results {
+    text-align: left;
+    margin: 20px auto;
+    font-size: 16px;
+}
+
+#bearingPathContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin: 10px;
+}
+
+#bearingPathContainer h3 {
+    text-align: center;
+}
+
+#bearingPathContainer label {
+    margin: 5px 0;
+}
+
+.compass-title-container {
+    text-align: center;
+    margin: 20px auto;
+}
+
+.bearing-slider-container {
+    display: none; /* Hide the container initially */
+}
+
+.bearing-slider-container.show {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 90%;
+    margin: 20px auto; /* Adjusted margin to match other containers */
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.slider-label {
+    flex: 1;
+    text-align: left;
+    font-size: 15px;
+}
+
+.slider-label img {
+    max-height: 35px;
+    margin-left: 95%; /* Push the image to the right */
+}
+
+
+.bearing-slider-container h3 {
+    text-align: center;
+}
+
+.bearing-slider-container label {
+    margin: 5px 0;
+}
+
+.compass-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1;
+    text-align: center;
+    margin: 0 10px;
+}
+
+.compass-content {
+    position: relative; /* Add this to enable absolute positioning within */
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 20px;
+}
+
+.note-text {
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    text-align: left;
+    display: none; /* Hide initially */
+    position: absolute; /* Position absolutely within the .compass-content */
+    bottom: 10px; /* 10px from the bottom */
+    right: 10px; /* 10px from the right */
+}
+
+
+

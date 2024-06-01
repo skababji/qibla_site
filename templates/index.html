@@ -29,8 +29,12 @@
                 <p>I believe that the Qibla in NA is toward <strong>East/Southeast</strong> <em>NOT</em> because the earth is flat or I hate science, <em>but</em> because any calculations, whenever used, shall conform to <em>both</em> the <em>objectives</em> and the <em>means</em> as defined by the honorable Shariah.</p>
                 <p>This is why I follow the <em>constant</em> bearing of the <strong>rhumb line</strong> and <em>NOT</em> the initial bearing of the great circle which completely ignores the frame of reference as defined by the honorable Shariah.</p>
                 <p>It is imperative that neither the great circle nor the rhumb line calculations are required to find the direction of the qibla in North America. These mathematical constructs involve several implicit and explicit assumptions. In essence, and as once stated by <a href="https://en.wikipedia.org/wiki/George_E._P._Box">George Box</a>, all models are wrong but some are useful. Above all, driving Muslim laymen to this level of complication reflects the unprecedented weakness of Islamic scholarship in favor of scientific advancement.</p>
+                <p id="signature">Dr. Samer Elkababji, PhD</p>
             </div>
         </div>
+    </div>
+    <div class="compass-title-container">
+        <h2>Comparison of Rhumb Line and Great Circle Line</h2>
     </div>
     <div class="compass-container" id="compassContainer">
         <div class="compass-content">
@@ -42,6 +46,7 @@
                 <h2>Results</h2>
                 <p id="rhumbResultsText"></p>
             </div>
+            <p class="note-text" id="rhumbNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass does NOT rotate throughout the path.</p>
         </div>
         <div class="compass-content">
             <div class="compass">
@@ -51,15 +56,20 @@
             <div class="results-content" id="greatCircleResults" style="display: none;">
                 <h2>Results</h2>
                 <p id="greatCircleResultsText"></p>
-                <div id="bearingPathContainer" style="display: none;">
-                    <h3>Bearing Path</h3>
-                    <label for="bearingSlider">Initial Bearing</label>
-                    <input type="range" id="bearingSlider" min="0" max="360" value="0" style="width: 100%; margin-top: 10px;">
-                    <label for="bearingSlider" style="float: right;">Final Bearing</label>
-                </div>
             </div>
+            <p class="note-text" id="greatCircleNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass DOES rotate throughout the path.</p>
         </div>
     </div>
+    
+    <div class="bearing-slider-container">
+        <h3>Move the Following Slider to Recognize the Path You Would Theoretically be Walking on</h3>
+        <div class="slider-labels">
+            <div id="startLabel" class="slider-label"></div>
+            <div id="endLabel" class="slider-label"><img src="{{ url_for('static', filename='Kaaba.png') }}" alt="End Image"></div>
+        </div>
+        <input type="range" id="bearingSlider" min="0" max="360" value="0" style="width: 100%;">
+    </div>
+    
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
