@@ -269,4 +269,12 @@ select {
 }
 
 
+/* Freestyle Script CSS Element */
+.freestyle-element {
+    font-family: 'Freestyle Script', cursive;
+    font-size: 24px;
+    color: #000000; /* Adjust color as desired */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle text shadow */
+    /* Add any additional styling as needed */
+}
 

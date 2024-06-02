@@ -20,16 +20,21 @@
             <select id="citySelect" name="city" style="display: none;">
                 <option value="">Select your city</option>
             </select>
-            <button id="calculateButton" style="display: none;">Calculate Bearing</button>
+            <button id="calculateButton" style="display: none;  margin-left: 500px;">Calculate Bearing</button>
             <div id="results"></div>
         </div>
         <div class="sidebar">
-            <h1>Brief Explanation</h1>
+            <h1>Succinct clarification</h1>
             <div class="text-content">
-                <p>I believe that the Qibla in NA is toward <strong>East/Southeast</strong> <em>NOT</em> because the earth is flat or I hate science, <em>but</em> because any calculations, whenever used, shall conform to <em>both</em> the <em>objectives</em> and the <em>means</em> as defined by the honorable Shariah.</p>
-                <p>This is why I follow the <em>constant</em> bearing of the <strong>rhumb line</strong> and <em>NOT</em> the initial bearing of the great circle which completely ignores the frame of reference as defined by the honorable Shariah.</p>
-                <p>It is imperative that neither the great circle nor the rhumb line calculations are required to find the direction of the qibla in North America. These mathematical constructs involve several implicit and explicit assumptions. In essence, and as once stated by <a href="https://en.wikipedia.org/wiki/George_E._P._Box">George Box</a>, all models are wrong but some are useful. Above all, driving Muslim laymen to this level of complication reflects the unprecedented weakness of Islamic scholarship in favor of scientific advancement.</p>
-                <p id="signature">Dr. Samer Elkababji, PhD</p>
+                <p>The Qibla direction in North America should point towards the East/Southeast, not the Northeast as commonly and incorrectly adopted by the vast majority of mosques today. This is not because of a belief in a flat Earth or a disregard for science, but rather because any calculations must align with both the objectives and the <em>means</em> as defined by Shariah.</p>
+
+                <p>According to Islamic scripture and the early consensu of the four authoritative schools of interpretation, the origin of the spherical coordinate system is deemed to be the north pole, not the center of the Earth. The Arabs relied on stars to locate the North Pole and accordingly ascertain the Qibla direction. Allah said:<strong> وَعَلَامَاتٍ ۚ وَبِالنَّجْمِ هُمْ يَهْتَدُونَ </strong> which means: Allah made clear landmarks on earth (not in earth) and stars (outside earth) for mankind to guide themselves during days and nights. </p>
+
+                <p>Therefore, I adhere to the <em>constant</em> bearing of the <strong>rhumb line</strong>, rather than the initial bearing of the great circle, which entirly disregrads the frame of reference as outlined by Shariah.</p>
+
+                <p>It is essential to emphasize that neither great circle nor rhumb line calculations are necessary for determining the Qibla direction in North America. Shariah does not mandate knowledge of geometry for identifying the Qibla direction. However, if someone chooses to use such mathematical constructs, they should ensure that their calculations align with the original Shariah frame of reference. </p>
+
+                <p class="freestyle-element" id="signature">Samer El kababji, PhD, MEng <br>May 2024  - London, Ontario</p>
             </div>
         </div>
     </div>
@@ -46,7 +51,7 @@
                 <h2>Results</h2>
                 <p id="rhumbResultsText"></p>
             </div>
-            <p class="note-text" id="rhumbNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass does NOT rotate throughout the path.</p>
+            <p class="note-text" id="rhumbNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass does NOT move throughout the path.</p>
         </div>
         <div class="compass-content">
             <div class="compass">
@@ -57,12 +62,12 @@
                 <h2>Results</h2>
                 <p id="greatCircleResultsText"></p>
             </div>
-            <p class="note-text" id="greatCircleNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass DOES rotate throughout the path.</p>
+            <p class="note-text" id="greatCircleNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass DOES move throughout the path.</p>
         </div>
     </div>
     
     <div class="bearing-slider-container">
-        <h3>Move the Following Slider to Recognize the Path You Would Theoretically be Walking on</h3>
+        <h3>Asjust the slider to see the difference in bearing when travelling along the route calculated using the rhumb line versus the one calculated using the great circle</h3>
         <div class="slider-labels">
             <div id="startLabel" class="slider-label"></div>
             <div id="endLabel" class="slider-label"><img src="{{ url_for('static', filename='Kaaba.png') }}" alt="End Image"></div>
