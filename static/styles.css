@@ -26,6 +26,13 @@ a:hover {
     text-decoration: underline;
 }
 
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10%; /* Optional: set a height to the container if needed */
+}
+
 button {
     background-color: #009688;
     color: white;

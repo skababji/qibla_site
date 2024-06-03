@@ -20,6 +20,13 @@ def get_cities():
     cities = np.unique(places[places['country'] == country]['city'].values).tolist()
     return jsonify(cities)
 
+@app.route('/receive-data', methods=['POST'])
+def receive_data():
+    data = request.get_json()
+    sliderValue = data['sliderValue']
+    print(f'Received variable: {sliderValue}')
+    return jsonify({"status": "success", "received_variable": sliderValue})
+
 @app.route('/calculate_bearing', methods=['POST'])
 def calculate_bearing():
     country = request.form['country']
@@ -44,7 +51,6 @@ def calculate_bearing():
     gc_initial_bearing=round(i_elps.initialBearingTo(m_elps), 0)
     gc_final_bearing=str(round(i_elps.finalBearingTo(m_elps), 0))
     gc_dist=round(i_elps.distanceTo(m_elps)/1000, 0)
-
     
     return jsonify({
         "rhumb_bearing": rhumb_bearing,

@@ -35,7 +35,7 @@ midpoint_geodesy = ev.LatLon(*source_lat_long).midpointTo(mecca_geodesy) """
 
 
 # Get the destination point along the great circle path
-distance_from_source=2000000 #in meters
+distance_from_source=4000000 #in meters
 moving_point_geodesy = source_geodesy.destination(distance_from_source, source_geodesy.initialBearingTo(mecca_geodesy))
 
 

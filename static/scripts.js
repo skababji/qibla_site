@@ -61,20 +61,33 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
 
             // Set up slider for Great Circle Line
             const slider = document.getElementById('bearingSlider');
-            slider.min = data.gc_initial_bearing;
-            slider.max = data.gc_final_bearing;
-            slider.value = data.gc_initial_bearing;
+            const startLabel = document.getElementById('startLabel');
+            const endLabel = document.getElementById('endLabel');
+
+            if (data.gc_initial_bearing > data.gc_final_bearing) {
+                slider.min = data.gc_final_bearing;
+                slider.max = data.gc_initial_bearing;
+                slider.value = data.gc_final_bearing;
+                startLabel.textContent = `Initial Bearing: ${data.gc_initial_bearing}`;
+                endLabel.textContent = `Final Bearing: ${data.gc_final_bearing}`;
+            } else {
+                slider.min = data.gc_initial_bearing;
+                slider.max = data.gc_final_bearing;
+                slider.value = data.gc_initial_bearing;
+            }
 
             const sliderContainer = document.querySelector('.bearing-slider-container');
             sliderContainer.classList.add('show'); // Add 'show' class to display the container
 
             // Set the start label to city, country
-            document.getElementById('startLabel').textContent = `${city}, ${country}`;
+            startLabel.textContent = `${city}, ${country}`;
 
             slider.addEventListener('input', function() {
                 console.log('Slider value:', slider.value);
+                const bearingValue = parseFloat(slider.value);
+                const adjustedBearing = data.gc_initial_bearing > data.gc_final_bearing ? data.gc_initial_bearing - (bearingValue - slider.min) : bearingValue;
                 compassContainer2.innerHTML = ''; // Clear previous compass
-                compassContainer2.appendChild(drawCompass(parseFloat(slider.value))); // Update compass with slider value
+                compassContainer2.appendChild(drawCompass(adjustedBearing)); // Update compass with adjusted bearing value
             });
 
             // Scroll to the compass container
