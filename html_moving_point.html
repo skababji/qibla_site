@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moving Point Plot</title>
+</head>
+<body>
+    <h1>Adjust Distance to Move Point Along Path</h1>
+    <input type="range" min="1000000" max="10000000" value="4000000" id="distanceSlider" step="100000">
+    <img id="plotImage" src="/plot?distance=4000000">
+
+    <script>
+        document.getElementById("distanceSlider").oninput = function() {
+            let value = this.value;
+            document.getElementById("plotImage").src = '/plot?distance=' + value;
+        };
+    </script>
+</body>
+</html>
