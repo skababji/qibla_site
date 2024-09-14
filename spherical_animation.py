@@ -48,13 +48,13 @@ def setup_plot(ax,R):
 
     # Set axis limits
     ax.set_xlim([0, R])
-    ax.set_ylim([-R, R])
-    ax.set_zlim([0, R])
+    ax.set_ylim([-2.7*R, R])
+    ax.set_zlim([0, 1.3*R])
     
     # Plot the main axes
     ax.plot([0, R], [0, 0], [0, 0], 'k-')  # X-axis
-    ax.plot([0, 0], [-R, R], [0, 0], 'k-')  # Y-axis
-    ax.plot([0, 0], [0, 0], [0, R], 'k-')  # Z-axis
+    ax.plot([0, 0], [-2.7*R, R], [0, 0], 'k-')  # Y-axis
+    ax.plot([0, 0], [0, 0], [0, 1.3*R], 'k-')  # Z-axis
 
     # Set axis labels and title
     ax.set_xlabel('') #'X'
@@ -73,7 +73,7 @@ def setup_plot(ax,R):
     return ax
 
  
-def plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center,north_pole_cartesian):
+def plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center,north_pole_xyz, source_city_name):
     # Create a figure and 3D axis
     ax.plot(x_points, y_points, z_points, 'b-')
     ax.plot([source_xyz[0]], [source_xyz[1]], [source_xyz[2]], 'ro')  # source
@@ -81,8 +81,8 @@ def plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center,n
     
     # Add labels
     ax.text(earth_center[0], earth_center[1], earth_center[2], '  Earth Center', fontsize=8, ha='right')
-    ax.text(north_pole_cartesian[0], north_pole_cartesian[1], north_pole_cartesian[2], '  North Pole', fontsize=8, ha='right')
-    ax.text(source_xyz[0], source_xyz[1], source_xyz[2], '  New York City', fontsize=8, ha='right')
+    ax.text(north_pole_xyz[0], north_pole_xyz[1], north_pole_xyz[2], '  North Pole', fontsize=8, ha='right')
+    ax.text(source_xyz[0], source_xyz[1], source_xyz[2], f'  {source_city_name}', fontsize=8, ha='right')
     ax.text(dest_xyz[0], dest_xyz[1], dest_xyz[2], '  Mecca', fontsize=8, ha='right')
     return ax
     
@@ -99,25 +99,34 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
 R = 6371.0 # Radius of the Earth in kilometers
 north_pole_xyz=(0,0,R)
 earth_center_xyz=(0,0,0)
-source_lat_long = (40.7128, -74.0060)  # New York City
+source_city_name="Vancouver"
+sourc_geopy = geolocator.geocode(source_city_name)
+#source_lat_long = (40.7128, -74.0060)  # New York City
+source_lat_long=(sourc_geopy.latitude, sourc_geopy.longitude)
 mecca_geopy = geolocator.geocode("Mecca")
 mecca_lat_long=(mecca_geopy.latitude, mecca_geopy.longitude)
 source_xyz, dest_xyz, x_points, y_points, z_points=get_xyz4arc_points(source_lat_long, mecca_lat_long)
 full_distance=get_distance(source_lat_long, mecca_lat_long) #in km
 
-fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111, projection='3d')
-setup_plot(ax,R)
-plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center_xyz,north_pole_xyz)
+
 step_distance= 1000 #in km
 distances=np.arange(0,full_distance,step_distance)
 frames=[]
 for i,moved_distance in enumerate(distances):
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    setup_plot(ax,R)
+    plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center_xyz,north_pole_xyz, source_city_name)
     moving_point_xyz=get_xyz4moving_point(source_lat_long,mecca_lat_long, moved_distance)
     plot_moving_point(ax,earth_center_xyz,north_pole_xyz,moving_point_xyz)
-    moving_point_adj_z=np.abs(moving_point_xyz[2])
-    print(f"angle wrt earth center {(180/np.pi)*np.arccos(moving_point_adj_z/R)}")
-    print(f"angle wrt north pole {(180/np.pi)*np.arccos(R-moving_point_adj_z/moving_point_adj_z)}")
+    zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
+    zenith_angle_opposite=R*np.sin(zenith_angle)
+    angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
+    ax.text(700, 0, 1000, angle_wrt_earth_center_text, fontsize=8, ha='right')
+
+    angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
+    ax.text(north_pole_xyz[0]+700, north_pole_xyz[1], north_pole_xyz[2]-800, angle_wrt_north_pole_text, fontsize=8, ha='right')
+
     # Save the current figure as an image (PNG format)
     frame_filename = f'frame_{i}.png'
     fig.savefig(frame_filename)
