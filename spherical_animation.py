@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 import numpy as np
-from pygeodesy import ellipsoidalVincenty as ev
+#from pygeodesy import ellipsoidalVincenty as earth_model #used for great circle. does not support rhumb line calc
+from pygeodesy import sphericalTrigonometry as earth_model #used here forrhumb lne calc (but can be also usd for great curcle calc) 
+
 from geopy.geocoders import Nominatim
 
 geolocator = Nominatim(user_agent="qibla")
@@ -18,17 +20,59 @@ def geodetic_to_cartesian(lat, lon, alt=0):
     z = (R + alt) * np.sin(lat)
     return x, y, z
 
+#plots a sphere
+def plot_sphere(ax,radius, show_grid=False):
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+    x = radius * np.outer(np.cos(u), np.sin(v))
+    y = radius * np.outer(np.sin(u), np.sin(v))
+    z = radius * np.outer(np.ones(np.size(u)), np.cos(v))# Plot the surface of the sphere
+    ax.plot_surface(x, y, z, color='cyan', alpha=0.05, edgecolor='none')  # light and transparent
+    
+    if show_grid: 
+        # Add latitude and longitude grid lines
+        num_lat_lines = 5
+        num_lon_lines = 5
+
+        # Latitude lines (parallel to the xy-plane)
+        for i in range(num_lat_lines):
+            theta = i * 2 * np.pi / num_lat_lines
+            x_lat = R * np.cos(theta)
+            y_lat = R * np.sin(theta)
+            z_lat = np.zeros_like(x_lat)
+            ax.plot(x_lat, y_lat, z_lat, color='cyan', alpha=0.2)
+
+        # Longitude lines (meridians)
+        for i in range(num_lon_lines):
+            phi = i * np.pi / num_lon_lines
+            x_lon = R * np.sin(phi) * np.cos(u)
+            y_lon = R * np.sin(phi) * np.sin(u)
+            z_lon = R * np.cos(phi) * np.ones_like(u)
+            ax.plot(x_lon, y_lon, z_lon, color='cyan', alpha=0.2)
+
+    # Set the aspect ratio to ensure the sphere looks like a sphere
+    ax.set_box_aspect([1, 1, 1])
+    
+    return ax
+
+    
+
 #retunrs distance in meters between two geodesy points
-def get_distance(source_lat_long, dest_lat_long):
-    source_geodesy=ev.LatLon(*source_lat_long)
-    dest_geodesy=ev.LatLon(*dest_lat_long)
-    distance = source_geodesy.distanceTo(dest_geodesy)
+def get_distance(source_lat_long, dest_lat_long, route="great_circle"):
+    source_geodesy=earth_model.LatLon(*source_lat_long)
+    dest_geodesy=earth_model.LatLon(*dest_lat_long)
+    if route=='great_circle':
+        distance = source_geodesy.distanceTo(dest_geodesy)
+    elif route=='rhumb_line':
+        distance = source_geodesy.rhumbDistanceTo(dest_geodesy)
+    else:
+        raise TypeError
     return distance/1000 #In km
 
 def get_xyz4arc_points(source_lat_long, dest_lat_long, n_points=100):
     source_xyz = geodetic_to_cartesian(*source_lat_long)
     dest_xyz = geodetic_to_cartesian(*dest_lat_long)
-    points_geodesy = [ev.LatLon(*source_lat_long).intermediateTo(ev.LatLon(*dest_lat_long), i / n_points) for i in range(n_points)]
+    points_geodesy = [earth_model.LatLon(*source_lat_long).intermediateTo(earth_model.LatLon(*dest_lat_long), i / n_points) for i in range(n_points)]
     intermediate_points_cartesian = [geodetic_to_cartesian(point.lat, point.lon) for point in points_geodesy]
     x_points = [point[0] for point in intermediate_points_cartesian]
     y_points = [point[1] for point in intermediate_points_cartesian]
@@ -37,8 +81,8 @@ def get_xyz4arc_points(source_lat_long, dest_lat_long, n_points=100):
 
 def get_xyz4moving_point(source_lat_long, dest_lat_long, moving_point_distance_from_source_kms):
     moving_point_distance_from_source=moving_point_distance_from_source_kms*1000 #vonvert to meters
-    source_geodesy=ev.LatLon(*source_lat_long)
-    dest_geodesy=ev.LatLon(*dest_lat_long)
+    source_geodesy=earth_model.LatLon(*source_lat_long)
+    dest_geodesy=earth_model.LatLon(*dest_lat_long)
     moving_point_geodesy = source_geodesy.destination(moving_point_distance_from_source, source_geodesy.initialBearingTo(dest_geodesy))
     moving_point_xyz = geodetic_to_cartesian(moving_point_geodesy.lat, moving_point_geodesy.lon)
     return moving_point_xyz
@@ -66,7 +110,7 @@ def setup_plot(ax,R):
     ax.set_yticklabels([])
     ax.set_zticklabels([])
 
-    plt.title('Great Circle Trajector')
+    plt.title('Great Circle Trajectory')
     
     # Set box aspect to control zoom in and out
     ax.set_box_aspect([1, 1, 1])
@@ -116,6 +160,7 @@ for i,moved_distance in enumerate(distances):
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(111, projection='3d')
     setup_plot(ax,R)
+    plot_sphere(ax,R)
     plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center_xyz,north_pole_xyz, source_city_name)
     moving_point_xyz=get_xyz4moving_point(source_lat_long,mecca_lat_long, moved_distance)
     plot_moving_point(ax,earth_center_xyz,north_pole_xyz,moving_point_xyz)
