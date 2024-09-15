@@ -1,15 +1,16 @@
 import os
 import numpy as np
+
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent="qibla")
+
+#from pygeodesy import ellipsoidalVincenty as earth_model #used for great circle. does not support rhumb line calc
+from pygeodesy import sphericalTrigonometry as earth_model #used here forrhumb lne calc (but can be also usd for great curcle calc) 
+from pygeodesy import  rhumb
+
 import matplotlib.pyplot as plt
 from PIL import Image
 
-import numpy as np
-#from pygeodesy import ellipsoidalVincenty as earth_model #used for great circle. does not support rhumb line calc
-from pygeodesy import sphericalTrigonometry as earth_model #used here forrhumb lne calc (but can be also usd for great curcle calc) 
-
-from geopy.geocoders import Nominatim
-
-geolocator = Nominatim(user_agent="qibla")
 
 # Convert geodetic coordinates (latitude, longitude) to Cartesian coordinates (x, y, z)
 def geodetic_to_cartesian(lat, lon, alt=0):
@@ -58,9 +59,7 @@ def plot_sphere(ax,radius, show_grid=False):
     
 
 #retunrs distance in meters between two geodesy points
-def get_distance(source_lat_long, dest_lat_long, route="great_circle"):
-    source_geodesy=earth_model.LatLon(*source_lat_long)
-    dest_geodesy=earth_model.LatLon(*dest_lat_long)
+def get_distance(source_geodesy, dest_geodesy, route="great_circle"):
     if route=='great_circle':
         distance = source_geodesy.distanceTo(dest_geodesy)
     elif route=='rhumb_line':
@@ -69,15 +68,23 @@ def get_distance(source_lat_long, dest_lat_long, route="great_circle"):
         raise TypeError
     return distance/1000 #In km
 
-def get_xyz4arc_points(source_lat_long, dest_lat_long, n_points=100):
-    source_xyz = geodetic_to_cartesian(*source_lat_long)
-    dest_xyz = geodetic_to_cartesian(*dest_lat_long)
-    points_geodesy = [earth_model.LatLon(*source_lat_long).intermediateTo(earth_model.LatLon(*dest_lat_long), i / n_points) for i in range(n_points)]
+def get_xyz4arc_points(source_geodesy, dest_geodesy, n_points=100, route="great_circle"):
+    if route=='great_circle':
+        points_geodesy = [source_geodesy.intermediateTo(dest_geodesy, i / n_points) for i in range(n_points)]
+    elif route=='rhumb_line':
+        points_geodesy=[]
+        for i in range(n_points):
+            rhumb_bearing = source_geodesy.rhumbBearingTo(dest_geodesy)
+            rhumb_dist = source_geodesy.rhumbDistanceTo(dest_geodesy)
+            step_point= source_geodesy.destination(rhumb_bearing, i*rhumb_dist/n_points)
+            points_geodesy.append(step_point)
+    else:
+        raise TypeError
     intermediate_points_cartesian = [geodetic_to_cartesian(point.lat, point.lon) for point in points_geodesy]
     x_points = [point[0] for point in intermediate_points_cartesian]
     y_points = [point[1] for point in intermediate_points_cartesian]
     z_points = [point[2] for point in intermediate_points_cartesian]   
-    return source_xyz, dest_xyz, x_points, y_points, z_points
+    return  x_points, y_points, z_points
 
 def get_xyz4moving_point(source_lat_long, dest_lat_long, moving_point_distance_from_source_kms):
     moving_point_distance_from_source=moving_point_distance_from_source_kms*1000 #vonvert to meters
@@ -88,7 +95,7 @@ def get_xyz4moving_point(source_lat_long, dest_lat_long, moving_point_distance_f
     return moving_point_xyz
 
 
-def setup_plot(ax,R):
+def setup_plot(ax,R, route_name):
 
     # Set axis limits
     ax.set_xlim([0, R])
@@ -110,7 +117,7 @@ def setup_plot(ax,R):
     ax.set_yticklabels([])
     ax.set_zticklabels([])
 
-    plt.title('Great Circle Trajectory')
+    plt.title(f'{route_name} Trajectory')
     
     # Set box aspect to control zoom in and out
     ax.set_box_aspect([1, 1, 1])
@@ -139,18 +146,36 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
     ax.plot([north_pole_xyz[0], moving_point_xyz[0]], [north_pole_xyz[1], moving_point_xyz[1]], [north_pole_xyz[2], moving_point_xyz[2]], 'r-')
 
 
-
+'''' In this scrpt we efer to any pint on earth by four representaions:
+1)point_geopy=geolocator.geocode(source_city_name)
+2)point_latlong_tuple=(point_geopy.latitude,point_geopy.longitude)
+3) point_pygeodesy=earth_model.LatLon(*point_latlong_tuple)
+4)point_xyz_tuple=geodetic_to_cartesian(*point_latlong_tuple)
+'''
 R = 6371.0 # Radius of the Earth in kilometers
-north_pole_xyz=(0,0,R)
-earth_center_xyz=(0,0,0)
+ROUTE="great_circle" #"rhumb_line"
+north_pole_xyz_tuple=(0,0,R)
+earth_center_xyz_tuple=(0,0,0)
+
+
 source_city_name="Vancouver"
-sourc_geopy = geolocator.geocode(source_city_name)
-#source_lat_long = (40.7128, -74.0060)  # New York City
-source_lat_long=(sourc_geopy.latitude, sourc_geopy.longitude)
+source_geopy = geolocator.geocode(source_city_name)
+#source_latlong_tuple = (40.7128, -74.0060)  # New York City
+source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
 mecca_geopy = geolocator.geocode("Mecca")
-mecca_lat_long=(mecca_geopy.latitude, mecca_geopy.longitude)
-source_xyz, dest_xyz, x_points, y_points, z_points=get_xyz4arc_points(source_lat_long, mecca_lat_long)
-full_distance=get_distance(source_lat_long, mecca_lat_long) #in km
+mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
+
+source_geodesy=earth_model.LatLon(*source_latlong_tuple)
+mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
+
+full_distance=get_distance(source_geodesy, mecca_geodesy,route=ROUTE) #in km
+x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=ROUTE)
+
+
+source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
+mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
+
+
 
 
 step_distance= 1000 #in km
@@ -159,18 +184,18 @@ frames=[]
 for i,moved_distance in enumerate(distances):
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(111, projection='3d')
-    setup_plot(ax,R)
+    setup_plot(ax,R, ROUTE)
     plot_sphere(ax,R)
-    plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center_xyz,north_pole_xyz, source_city_name)
-    moving_point_xyz=get_xyz4moving_point(source_lat_long,mecca_lat_long, moved_distance)
-    plot_moving_point(ax,earth_center_xyz,north_pole_xyz,moving_point_xyz)
+    plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
+    moving_point_xyz=get_xyz4moving_point(source_latlong_tuple,mecca_latlong_tuple, moved_distance)
+    plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
     zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
     zenith_angle_opposite=R*np.sin(zenith_angle)
     angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
     ax.text(700, 0, 1000, angle_wrt_earth_center_text, fontsize=8, ha='right')
 
     angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
-    ax.text(north_pole_xyz[0]+700, north_pole_xyz[1], north_pole_xyz[2]-800, angle_wrt_north_pole_text, fontsize=8, ha='right')
+    ax.text(north_pole_xyz_tuple[0]+700, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=8, ha='right')
 
     # Save the current figure as an image (PNG format)
     frame_filename = f'frame_{i}.png'
@@ -180,9 +205,28 @@ for i,moved_distance in enumerate(distances):
     frames.append(Image.open(frame_filename))
 
 # Save the frames as a GIF
-frames[0].save('great_circle_trajectory.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+frames[0].save(f'{ROUTE}_trajectory.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
 
 # Delete the individual frame files
 for i in range(len(distances)):
     os.remove(f'frame_{i}.png')
+
+
+
+# from pygeodesy import rhumb, LatLon
+
+# source = LatLon(34.052235, -118.243683)  # Los Angeles
+# destination = LatLon(40.712776, -74.005974)  # New York
+
+# rhumb_line = source.rhumbTo(destination)
+
+# # Calculate distance and intermediate points
+# distance = rhumb_line.distance
+# bearing = rhumb_line.bearing
+
+# intermediate_point = source.rhumbAt(bearing, distance / 2)  # Middle of the rhumb line path
+
+# print(f"Distance: {distance} km")
+# print(f"Bearing: {bearing} degrees")
+# print(f"Intermediate Point: {intermediate_point.lat}, {intermediate_point.lon}")
 
