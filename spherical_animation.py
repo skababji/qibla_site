@@ -160,7 +160,6 @@ ROUTE="rhumb_line" #"rhumb_line"
 north_pole_xyz_tuple=(0,0,R)
 earth_center_xyz_tuple=(0,0,0)
 
-
 source_city_name="Vancouver"
 source_geopy = geolocator.geocode(source_city_name)
 #source_latlong_tuple = (40.7128, -74.0060)  # New York City
@@ -174,12 +173,8 @@ mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
 full_distance=get_distance(source_geodesy, mecca_geodesy,route=ROUTE) #in km
 x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=ROUTE)
 
-
 source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
 mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
-
-
-
 
 step_distance= 1000 #in km
 distances=np.arange(0,full_distance,step_distance)
