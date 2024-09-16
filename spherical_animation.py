@@ -9,6 +9,7 @@ from pygeodesy import sphericalTrigonometry as earth_model #used here forrhumb l
 from pygeodesy import  rhumb
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
 
@@ -73,10 +74,10 @@ def get_xyz4arc_points(source_geodesy, dest_geodesy, n_points=100, route="great_
         points_geodesy = [source_geodesy.intermediateTo(dest_geodesy, i / n_points) for i in range(n_points)]
     elif route=='rhumb_line':
         points_geodesy=[]
+        rhumb_bearing = source_geodesy.rhumbBearingTo(dest_geodesy)
+        rhumb_dist = source_geodesy.rhumbDistanceTo(dest_geodesy)
         for i in range(n_points):
-            rhumb_bearing = source_geodesy.rhumbBearingTo(dest_geodesy)
-            rhumb_dist = source_geodesy.rhumbDistanceTo(dest_geodesy)
-            step_point= source_geodesy.destination(rhumb_bearing, i*rhumb_dist/n_points)
+            step_point= source_geodesy.rhumbDestination( i*rhumb_dist/n_points,rhumb_bearing)
             points_geodesy.append(step_point)
     else:
         raise TypeError
@@ -86,17 +87,19 @@ def get_xyz4arc_points(source_geodesy, dest_geodesy, n_points=100, route="great_
     z_points = [point[2] for point in intermediate_points_cartesian]   
     return  x_points, y_points, z_points
 
-def get_xyz4moving_point(source_lat_long, dest_lat_long, moving_point_distance_from_source_kms):
+def get_xyz4moving_point(source_geodesy, dest_geodesy, moving_point_distance_from_source_kms, route="great_circle"):  
     moving_point_distance_from_source=moving_point_distance_from_source_kms*1000 #vonvert to meters
-    source_geodesy=earth_model.LatLon(*source_lat_long)
-    dest_geodesy=earth_model.LatLon(*dest_lat_long)
-    moving_point_geodesy = source_geodesy.destination(moving_point_distance_from_source, source_geodesy.initialBearingTo(dest_geodesy))
+    if route=='great_circle':
+        moving_point_geodesy = source_geodesy.destination(moving_point_distance_from_source, source_geodesy.initialBearingTo(dest_geodesy))
+    elif route=='rhumb_line':
+        rhumb_bearing = source_geodesy.rhumbBearingTo(dest_geodesy)
+        moving_point_geodesy= source_geodesy.rhumbDestination(moving_point_distance_from_source,rhumb_bearing)
+
     moving_point_xyz = geodetic_to_cartesian(moving_point_geodesy.lat, moving_point_geodesy.lon)
     return moving_point_xyz
 
 
 def setup_plot(ax,R, route_name):
-
     # Set axis limits
     ax.set_xlim([0, R])
     ax.set_ylim([-2.7*R, R])
@@ -153,7 +156,7 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
 4)point_xyz_tuple=geodetic_to_cartesian(*point_latlong_tuple)
 '''
 R = 6371.0 # Radius of the Earth in kilometers
-ROUTE="great_circle" #"rhumb_line"
+ROUTE="rhumb_line" #"rhumb_line"
 north_pole_xyz_tuple=(0,0,R)
 earth_center_xyz_tuple=(0,0,0)
 
@@ -187,7 +190,7 @@ for i,moved_distance in enumerate(distances):
     setup_plot(ax,R, ROUTE)
     plot_sphere(ax,R)
     plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
-    moving_point_xyz=get_xyz4moving_point(source_latlong_tuple,mecca_latlong_tuple, moved_distance)
+    moving_point_xyz=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=ROUTE)
     plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
     zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
     zenith_angle_opposite=R*np.sin(zenith_angle)
@@ -198,6 +201,7 @@ for i,moved_distance in enumerate(distances):
     ax.text(north_pole_xyz_tuple[0]+700, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=8, ha='right')
 
     # Save the current figure as an image (PNG format)
+    ax.view_init(elev=30, azim=-45) # defaults 30,-60
     frame_filename = f'frame_{i}.png'
     fig.savefig(frame_filename)
     
