@@ -22,7 +22,7 @@ ROUTES={
 #     "great_circle": "great_circle",
 # }
 
-CITIES=["Toronto", "Vancouver"]
+CITIES=["Toronto", "Vancouver", "Santiago"]
 # CITIES=["Vancouver"]
 R = 6371.0 # Radius of the Earth in kilometers
 
