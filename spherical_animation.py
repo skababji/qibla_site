@@ -23,13 +23,13 @@ def geodetic_to_cartesian(lat, lon, alt=0):
     return x, y, z
 
 #plots a sphere
-def plot_sphere(ax,radius, show_grid=False):
+def plot_sphere(ax,radius, show_grid=True):
     u = np.linspace(0, 2 * np.pi, 100)
     v = np.linspace(0, np.pi, 100)
     x = radius * np.outer(np.cos(u), np.sin(v))
     y = radius * np.outer(np.sin(u), np.sin(v))
     z = radius * np.outer(np.ones(np.size(u)), np.cos(v))# Plot the surface of the sphere
-    ax.plot_surface(x, y, z, color='cyan', alpha=0.05, edgecolor='none')  # light and transparent
+    ax.plot_surface(x, y, z, color='cyan', alpha=0.1, edgecolor='none')  # light and transparent
     
     if show_grid: 
         # Add latitude and longitude grid lines
@@ -42,7 +42,7 @@ def plot_sphere(ax,radius, show_grid=False):
             x_lat = R * np.cos(theta)
             y_lat = R * np.sin(theta)
             z_lat = np.zeros_like(x_lat)
-            ax.plot(x_lat, y_lat, z_lat, color='cyan', alpha=0.2)
+            ax.plot(x_lat, y_lat, z_lat, color='gray', alpha=0.2)
 
         # Longitude lines (meridians)
         for i in range(num_lon_lines):
@@ -50,7 +50,7 @@ def plot_sphere(ax,radius, show_grid=False):
             x_lon = R * np.sin(phi) * np.cos(u)
             y_lon = R * np.sin(phi) * np.sin(u)
             z_lon = R * np.cos(phi) * np.ones_like(u)
-            ax.plot(x_lon, y_lon, z_lon, color='cyan', alpha=0.2)
+            ax.plot(x_lon, y_lon, z_lon, color='gray', alpha=0.2)
 
     # Set the aspect ratio to ensure the sphere looks like a sphere
     ax.set_box_aspect([1, 1, 1])
@@ -101,14 +101,14 @@ def get_xyz4moving_point(source_geodesy, dest_geodesy, moving_point_distance_fro
 
 def setup_plot(ax,R, route_name):
     # Set axis limits
-    ax.set_xlim([0, R])
-    ax.set_ylim([-2.7*R, R])
-    ax.set_zlim([0, 1.3*R])
+    ax.set_xlim([-R, R])
+    ax.set_ylim([-R, R])
+    ax.set_zlim([-R, R])
     
     # Plot the main axes
-    ax.plot([0, R], [0, 0], [0, 0], 'k-')  # X-axis
-    ax.plot([0, 0], [-2.7*R, R], [0, 0], 'k-')  # Y-axis
-    ax.plot([0, 0], [0, 0], [0, 1.3*R], 'k-')  # Z-axis
+    ax.plot([-1.5*R, 1.5*R], [0, 0], [0, 0], 'k-.', alpha=0.5)  # X-axis
+    ax.plot([0, 0], [-1.5*R, 1.5*R], [0, 0], 'k-.',alpha=0.5)  # Y-axis
+    ax.plot([0, 0], [0, 0], [-1.5*R, 1.5*R], 'k-.',alpha=0.5)  # Z-axis
 
     # Set axis labels and title
     ax.set_xlabel('') #'X'
@@ -119,11 +119,26 @@ def setup_plot(ax,R, route_name):
     ax.set_xticklabels([])
     ax.set_yticklabels([])
     ax.set_zticklabels([])
+    
+    
+    # Hide the background panes (these are the bold lines)
+    ax.xaxis.pane.set_visible(False)  # Hide X-axis plane
+    ax.yaxis.pane.set_visible(False)  # Hide Y-axis plane
+    ax.zaxis.pane.set_visible(False)  # Hide Z-axis plane
+
+    # Hide the bold axis lines by setting their color to none
+    ax.xaxis.line.set_color((1.0, 1.0, 1.0, 0.0))  # Make X-axis line invisible
+    ax.yaxis.line.set_color((1.0, 1.0, 1.0, 0.0))  # Make Y-axis line invisible
+    ax.zaxis.line.set_color((1.0, 1.0, 1.0, 0.0))  # Make Z-axis line invisible
+
+    # Keep the grid visible
+    ax.grid(True)
 
     plt.title(f'{route_name} Trajectory')
     
     # Set box aspect to control zoom in and out
     ax.set_box_aspect([1, 1, 1])
+
     return ax
 
  
@@ -156,7 +171,7 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
 4)point_xyz_tuple=geodetic_to_cartesian(*point_latlong_tuple)
 '''
 R = 6371.0 # Radius of the Earth in kilometers
-ROUTE="rhumb_line" #"rhumb_line"
+ROUTE="great_circle"
 north_pole_xyz_tuple=(0,0,R)
 earth_center_xyz_tuple=(0,0,0)
 
@@ -180,7 +195,7 @@ step_distance= 1000 #in km
 distances=np.arange(0,full_distance,step_distance)
 frames=[]
 for i,moved_distance in enumerate(distances):
-    fig = plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
     setup_plot(ax,R, ROUTE)
     plot_sphere(ax,R)
@@ -189,11 +204,12 @@ for i,moved_distance in enumerate(distances):
     plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
     zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
     zenith_angle_opposite=R*np.sin(zenith_angle)
+    
     angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
-    ax.text(700, 0, 1000, angle_wrt_earth_center_text, fontsize=8, ha='right')
+    ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
 
     angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
-    ax.text(north_pole_xyz_tuple[0]+700, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=8, ha='right')
+    ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=14, ha='right')
 
     # Save the current figure as an image (PNG format)
     ax.view_init(elev=30, azim=-45) # defaults 30,-60
