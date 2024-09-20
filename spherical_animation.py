@@ -12,7 +12,18 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
+#################################
+ROUTES={
+    "great_circle": "Great Circle",
+    "rhumb_line": "Rhumb Line"
+}
 
+CITIES=["Toronto", "Vancouver"]
+R = 6371.0 # Radius of the Earth in kilometers
+
+
+
+##################################
 # Convert geodetic coordinates (latitude, longitude) to Cartesian coordinates (x, y, z)
 def geodetic_to_cartesian(lat, lon, alt=0):
     lat = np.radians(lat)
@@ -170,78 +181,63 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
 3) point_pygeodesy=earth_model.LatLon(*point_latlong_tuple)
 4)point_xyz_tuple=geodetic_to_cartesian(*point_latlong_tuple)
 '''
-R = 6371.0 # Radius of the Earth in kilometers
-ROUTE="great_circle"
-north_pole_xyz_tuple=(0,0,R)
-earth_center_xyz_tuple=(0,0,0)
 
-source_city_name="Vancouver"
-source_geopy = geolocator.geocode(source_city_name)
-#source_latlong_tuple = (40.7128, -74.0060)  # New York City
-source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
-mecca_geopy = geolocator.geocode("Mecca")
-mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
+for city in CITIES:
+    for route_abbr, route_name in ROUTES.items():
+        
+        north_pole_xyz_tuple=(0,0,R)
+        earth_center_xyz_tuple=(0,0,0)
 
-source_geodesy=earth_model.LatLon(*source_latlong_tuple)
-mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
+        source_city_name=city
+        source_geopy = geolocator.geocode(source_city_name)
+        #source_latlong_tuple = (40.7128, -74.0060)  # New York City
+        source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
+        mecca_geopy = geolocator.geocode("Mecca")
+        mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
 
-full_distance=get_distance(source_geodesy, mecca_geodesy,route=ROUTE) #in km
-x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=ROUTE)
+        source_geodesy=earth_model.LatLon(*source_latlong_tuple)
+        mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
 
-source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
-mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
+        full_distance=get_distance(source_geodesy, mecca_geodesy,route=route_abbr) #in km
+        x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=route_abbr)
 
-step_distance= 1000 #in km
-distances=np.arange(0,full_distance,step_distance)
-frames=[]
-for i,moved_distance in enumerate(distances):
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection='3d')
-    setup_plot(ax,R, ROUTE)
-    plot_sphere(ax,R)
-    plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
-    moving_point_xyz=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=ROUTE)
-    plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
-    zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
-    zenith_angle_opposite=R*np.sin(zenith_angle)
-    
-    angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
-    ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
+        source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
+        mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
 
-    angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
-    ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=14, ha='right')
+        step_distance= 1000 #in km
+        distances=np.arange(0,full_distance,step_distance)
+        frames=[]
+        for i,moved_distance in enumerate(distances):
+            fig = plt.figure(figsize=(10, 8))
+            ax = fig.add_subplot(111, projection='3d')
+            setup_plot(ax,R, route_name)
+            plot_sphere(ax,R)
+            plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
+            moving_point_xyz=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=route_abbr)
+            plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
+            zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
+            zenith_angle_opposite=R*np.sin(zenith_angle)
+            
+            angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
+            ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
 
-    # Save the current figure as an image (PNG format)
-    ax.view_init(elev=30, azim=-45) # defaults 30,-60
-    frame_filename = f'frame_{i}.png'
-    fig.savefig(frame_filename)
-    
-    # Open the image and add it to the frames list
-    frames.append(Image.open(frame_filename))
+            angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
+            ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=14, ha='right')
 
-# Save the frames as a GIF
-frames[0].save(f'{ROUTE}_trajectory.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+            # Save the current figure as an image (PNG format)
+            ax.view_init(elev=30, azim=-45) # defaults 30,-60
+            frame_filename = f'frame_{i}.png'
+            fig.savefig(frame_filename)
+            
+            # Open the image and add it to the frames list
+            frames.append(Image.open(frame_filename))
 
-# Delete the individual frame files
-for i in range(len(distances)):
-    os.remove(f'frame_{i}.png')
+        # Save the frames as a GIF
+        frames[0].save(f'{city}_{route_abbr}_trajectory.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+
+        # Delete the individual frame files
+        for i in range(len(distances)):
+            os.remove(f'frame_{i}.png')
 
 
-
-# from pygeodesy import rhumb, LatLon
-
-# source = LatLon(34.052235, -118.243683)  # Los Angeles
-# destination = LatLon(40.712776, -74.005974)  # New York
-
-# rhumb_line = source.rhumbTo(destination)
-
-# # Calculate distance and intermediate points
-# distance = rhumb_line.distance
-# bearing = rhumb_line.bearing
-
-# intermediate_point = source.rhumbAt(bearing, distance / 2)  # Middle of the rhumb line path
-
-# print(f"Distance: {distance} km")
-# print(f"Bearing: {bearing} degrees")
-# print(f"Intermediate Point: {intermediate_point.lat}, {intermediate_point.lon}")
 
