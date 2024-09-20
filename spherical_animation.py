@@ -13,17 +13,17 @@ from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
 #################################
-# ROUTES={
-#     "great_circle": "Great Circle",
-#     "rhumb_line": "Rhumb Line"
-# }
-
 ROUTES={
     "great_circle": "Great Circle",
+    "rhumb_line": "Rhumb Line"
 }
 
-# CITIES=["Toronto", "Vancouver"]
-CITIES=["Vancouver"]
+# ROUTES={
+#     "great_circle": "great_circle",
+# }
+
+CITIES=["Toronto", "Vancouver"]
+# CITIES=["Vancouver"]
 R = 6371.0 # Radius of the Earth in kilometers
 
 
@@ -49,8 +49,8 @@ def plot_sphere(ax,radius, show_grid=True):
     
     if show_grid: 
         # Add latitude and longitude grid lines
-        num_lat_lines = 5
-        num_lon_lines = 5
+        num_lat_lines = 10
+        num_lon_lines = 10
 
         # Latitude lines (parallel to the xy-plane)
         for i in range(num_lat_lines):
@@ -107,12 +107,13 @@ def get_xyz4moving_point(source_geodesy, dest_geodesy, moving_point_distance_fro
     moving_point_distance_from_source=moving_point_distance_from_source_kms*1000 #vonvert to meters
     if route=='great_circle':
         moving_point_geodesy = source_geodesy.destination(moving_point_distance_from_source, source_geodesy.initialBearingTo(dest_geodesy))
+        bearing_to_dest= moving_point_geodesy.initialBearingTo(dest_geodesy)
     elif route=='rhumb_line':
         rhumb_bearing = source_geodesy.rhumbBearingTo(dest_geodesy)
         moving_point_geodesy= source_geodesy.rhumbDestination(moving_point_distance_from_source,rhumb_bearing)
-
+        bearing_to_dest=rhumb_bearing
     moving_point_xyz = geodetic_to_cartesian(moving_point_geodesy.lat, moving_point_geodesy.lon)
-    return moving_point_xyz
+    return moving_point_xyz, bearing_to_dest
 
 
 def setup_plot(ax,R, route_name):
@@ -218,7 +219,7 @@ for city in CITIES:
             setup_plot(ax,R, route_name)
             plot_sphere(ax,R)
             plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
-            moving_point_xyz=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=route_abbr)
+            moving_point_xyz, bearing_to_mecca=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=route_abbr)
             plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
             zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
             zenith_angle_opposite=R*np.sin(zenith_angle)
@@ -231,8 +232,8 @@ for city in CITIES:
 
             # Adding text next to the plot in the white space
             # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
-            plt.figtext(0.8, 0.55, "Distance\nAdditional Info", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
-            plt.figtext(0.8, 0.45, "Heading\nAdditional Info", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+            plt.figtext(0.8, 0.55, f"Distance To Mecca\n{moved_distance:.0f} Km", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
 
             
             # Save the current figure as an image (PNG format)
