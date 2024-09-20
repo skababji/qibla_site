@@ -13,12 +13,17 @@ from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
 #################################
+# ROUTES={
+#     "great_circle": "Great Circle",
+#     "rhumb_line": "Rhumb Line"
+# }
+
 ROUTES={
     "great_circle": "Great Circle",
-    "rhumb_line": "Rhumb Line"
 }
 
-CITIES=["Toronto", "Vancouver"]
+# CITIES=["Toronto", "Vancouver"]
+CITIES=["Vancouver"]
 R = 6371.0 # Radius of the Earth in kilometers
 
 
@@ -145,7 +150,7 @@ def setup_plot(ax,R, route_name):
     # Keep the grid visible
     ax.grid(True)
 
-    plt.title(f'{route_name} Trajectory')
+    plt.title(f'{route_name} Route',fontsize=14)
     
     # Set box aspect to control zoom in and out
     ax.set_box_aspect([1, 1, 1])
@@ -160,10 +165,10 @@ def plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center,n
     ax.plot([dest_xyz[0]], [dest_xyz[1]], [dest_xyz[2]], 'go')  # Destination
     
     # Add labels
-    ax.text(earth_center[0], earth_center[1], earth_center[2], '  Earth Center', fontsize=8, ha='right')
-    ax.text(north_pole_xyz[0], north_pole_xyz[1], north_pole_xyz[2], '  North Pole', fontsize=8, ha='right')
-    ax.text(source_xyz[0], source_xyz[1], source_xyz[2], f'  {source_city_name}', fontsize=8, ha='right')
-    ax.text(dest_xyz[0], dest_xyz[1], dest_xyz[2], '  Mecca', fontsize=8, ha='right')
+    ax.text(earth_center[0], earth_center[1], earth_center[2]-600, '  Earth Center', fontsize=10, ha='center',va='center')
+    ax.text(north_pole_xyz[0], north_pole_xyz[1], north_pole_xyz[2]+600, '  North Pole', fontsize=10, ha='center',va='center')
+    ax.text(source_xyz[0], source_xyz[1], source_xyz[2], f'  {source_city_name}', fontsize=10, ha='right')
+    ax.text(dest_xyz[0], dest_xyz[1], dest_xyz[2], '  Mecca', fontsize=10, ha='right')
     return ax
     
 def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):  
@@ -224,6 +229,12 @@ for city in CITIES:
             angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
             ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=14, ha='right')
 
+            # Adding text next to the plot in the white space
+            # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
+            plt.figtext(0.8, 0.55, "Distance\nAdditional Info", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+            plt.figtext(0.8, 0.45, "Heading\nAdditional Info", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+
+            
             # Save the current figure as an image (PNG format)
             ax.view_init(elev=30, azim=-45) # defaults 30,-60
             frame_filename = f'frame_{i}.png'
@@ -233,7 +244,7 @@ for city in CITIES:
             frames.append(Image.open(frame_filename))
 
         # Save the frames as a GIF
-        frames[0].save(f'{city}_{route_abbr}_trajectory.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+        frames[0].save(f'{city}_{route_abbr}_route.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
 
         # Delete the individual frame files
         for i in range(len(distances)):
