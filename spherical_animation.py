@@ -29,6 +29,23 @@ R = 6371.0 # Radius of the Earth in kilometers
 
 
 ##################################
+
+def bearing_to_direction(bearing):
+    # Define the 16 compass directions
+    directions = [
+        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", 
+        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
+    ]
+    
+    # Divide the bearing into 16 sectors of 22.5° each
+    index = int((bearing + 11.25) // 22.5) % 16
+    
+    return directions[index]
+
+
+
+
+
 # Convert geodetic coordinates (latitude, longitude) to Cartesian coordinates (x, y, z)
 def geodetic_to_cartesian(lat, lon, alt=0):
     lat = np.radians(lat)
@@ -233,7 +250,7 @@ for city in CITIES:
             # Adding text next to the plot in the white space
             # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
             plt.figtext(0.8, 0.55, f"Distance To Mecca\n{moved_distance:.0f} Km", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
-            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$ {bearing_to_direction(bearing_to_mecca)}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
 
             
             # Save the current figure as an image (PNG format)
