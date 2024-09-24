@@ -14,10 +14,19 @@ from PIL import Image
 
 #################################
 ROUTES={
-    "great_circle": "Great Circle",
-    "rhumb_line": "Rhumb Line"
+    "great_circle": "Great Circle (Orthodrome)",
+    "rhumb_line": "Rhumb Line (Loxodrome)"
 }
 
+ROUTE_COLORS={
+    "great_circle":"lightcoral",
+    "rhumb_line":"lightgreen",
+}
+
+ROUTE_COMMENTS={
+    "great_circle":"The orthodrome\ndiverges from\nthe foundational\nknowledge of Shariah\nas understood by\nthe companions",
+    "rhumb_line":"The loxodrome\nconverges with\nthe foundational\nknowledge of Shariah\nas understood by\nthe companion",
+}
 # ROUTES={
 #     "great_circle": "great_circle",
 # }
@@ -29,6 +38,14 @@ R = 6371.0 # Radius of the Earth in kilometers
 
 
 ##################################
+def get_point_on_3d_line(source_xyz: tuple, dest_xyz: tuple ,dist_from_source: float ) -> tuple:
+    source_xyz=np.array(source_xyz)
+    dest_xyz=np.array(dest_xyz)
+    source_dest_distance=np.linalg.norm(dest_xyz - source_xyz)
+    source_dest_direction = (dest_xyz - source_xyz) / source_dest_distance
+    point_xyz = source_xyz + dist_from_source * source_dest_direction
+    return point_xyz
+
 
 def bearing_to_direction(bearing):
     # Define the 16 compass directions
@@ -168,7 +185,7 @@ def setup_plot(ax,R, route_name):
     # Keep the grid visible
     ax.grid(True)
 
-    plt.title(f'{route_name} Route',fontsize=14)
+    plt.title(f'The {route_name} Route to Mecca',fontsize=18)
     
     # Set box aspect to control zoom in and out
     ax.set_box_aspect([1, 1, 1])
@@ -192,11 +209,38 @@ def plot_arc(ax,x_points,y_points, z_points, source_xyz,dest_xyz, earth_center,n
 def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):  
     ax.plot([moving_point_xyz[0]], [moving_point_xyz[1]], [moving_point_xyz[2]], 'bo')  # Movingpoint
     # ax.text(moving_point_cartesian[0], moving_point_cartesian[1], moving_point_cartesian[2], '  Moving Point', fontsize=8, ha='right')
+    
+    '''
     # Plot the red vector from the center of the Earth to the moving_point_cartesian
     ax.plot([earth_center_xyz[0], moving_point_xyz[0]], [earth_center_xyz[1], moving_point_xyz[1]], [earth_center_xyz[2], moving_point_xyz[2]], 'r-')
+    '''
+    
     # Plot the red vector from the center of the North Pole to the moving_point_cartesian
-    ax.plot([north_pole_xyz[0], moving_point_xyz[0]], [north_pole_xyz[1], moving_point_xyz[1]], [north_pole_xyz[2], moving_point_xyz[2]], 'r-')
+    ax.plot([north_pole_xyz[0], moving_point_xyz[0]], [north_pole_xyz[1], moving_point_xyz[1]], [north_pole_xyz[2], moving_point_xyz[2]], linestyle='-',color=ROUTE_COLORS[route_abbr])
+    
 
+    symbol_dist=1000 # distance from origin where the arc is drawn 
+
+    '''
+    ##### angle symbol wrt earth center
+    #get point on the z axis
+    arc_point_on_z=get_point_on_3d_line(earth_center_xyz,north_pole_xyz,symbol_dist)
+    # ax.plot(arc_point_on_z[0],arc_point_on_z[1],arc_point_on_z[2], marker='x', color='black', markersize=2, linestyle='None')
+    #plot
+    arc_point_on_vec=get_point_on_3d_line(earth_center_xyz,moving_point_xyz,symbol_dist)
+    # ax.plot(arc_point_on_vec[0],arc_point_on_vec[1],arc_point_on_vec[2],marker='x', color='black', markersize=2, linestyle='None')
+    ax.plot([earth_center_xyz[0],arc_point_on_z[0]],[earth_center_xyz[1],arc_point_on_z[1]],[earth_center_xyz[2],arc_point_on_z[2]],'r-')
+    ax.plot([arc_point_on_z[0],arc_point_on_vec[0]],[arc_point_on_z[1],arc_point_on_vec[1]],[arc_point_on_z[2],arc_point_on_vec[2]],'r-')
+    '''
+    
+    ######  angle symbol wrt north pole
+    #get pint on the z axis
+    arc_point_on_z=get_point_on_3d_line(north_pole_xyz,earth_center_xyz,symbol_dist)
+    #get ppoint on the red vector
+    arc_point_on_vec=get_point_on_3d_line(north_pole_xyz,moving_point_xyz,symbol_dist)
+    # plos
+    ax.plot([north_pole_xyz[0],arc_point_on_z[0]],[north_pole_xyz[1],arc_point_on_z[1]],[north_pole_xyz[2],arc_point_on_z[2]],linestyle='-.', color= ROUTE_COLORS[route_abbr])
+    ax.plot([arc_point_on_z[0],arc_point_on_vec[0]],[arc_point_on_z[1],arc_point_on_vec[1]],[arc_point_on_z[2],arc_point_on_vec[2]],linestyle='-.', color= ROUTE_COLORS[route_abbr])
 
 '''' In this scrpt we efer to any pint on earth by four representaions:
 1)point_geopy=geolocator.geocode(source_city_name)
@@ -231,7 +275,7 @@ for city in CITIES:
         distances=np.arange(0,full_distance,step_distance)
         frames=[]
         for i,moved_distance in enumerate(distances):
-            fig = plt.figure(figsize=(10, 8))
+            fig = plt.figure(figsize=(14, 12))
             ax = fig.add_subplot(111, projection='3d')
             setup_plot(ax,R, route_name)
             plot_sphere(ax,R)
@@ -241,17 +285,19 @@ for city in CITIES:
             zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
             zenith_angle_opposite=R*np.sin(zenith_angle)
             
+            '''
             angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
             ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
+            '''
 
             angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
-            ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-800, angle_wrt_north_pole_text, fontsize=14, ha='right')
+            ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-1200, angle_wrt_north_pole_text, fontsize=14, ha='right')
 
             # Adding text next to the plot in the white space
             # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
             plt.figtext(0.8, 0.55, f"Distance To Mecca\n{moved_distance:.0f} Km", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
-            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$ {bearing_to_direction(bearing_to_mecca)}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
-
+            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$ {bearing_to_direction(bearing_to_mecca)}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
+            plt.figtext(0.3, 0.5, f"{ROUTE_COMMENTS[route_abbr]}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
             
             # Save the current figure as an image (PNG format)
             ax.view_init(elev=30, azim=-45) # defaults 30,-60
