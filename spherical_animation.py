@@ -24,8 +24,8 @@ ROUTE_COLORS={
 }
 
 ROUTE_COMMENTS={
-    "great_circle":"The orthodrome\ndiverges from\nthe foundational\nknowledge of Shariah\nas understood by\nthe companions",
-    "rhumb_line":"The loxodrome\nconverges with\nthe foundational\nknowledge of Shariah\nas understood by\nthe companion",
+    "great_circle":"The orthodrome\ndeviates from\nthe reference point\nas defined by the Shariah",
+    "rhumb_line":"The loxodrome\napproximates \nthe reference point\nas defined by the Shariah",
 }
 # ROUTES={
 #     "great_circle": "great_circle",
@@ -249,70 +249,73 @@ def plot_moving_point(ax,earth_center_xyz,north_pole_xyz, moving_point_xyz):
 4)point_xyz_tuple=geodetic_to_cartesian(*point_latlong_tuple)
 '''
 
-for city in CITIES:
-    for route_abbr, route_name in ROUTES.items():
-        
-        north_pole_xyz_tuple=(0,0,R)
-        earth_center_xyz_tuple=(0,0,0)
 
-        source_city_name=city
-        source_geopy = geolocator.geocode(source_city_name)
-        #source_latlong_tuple = (40.7128, -74.0060)  # New York City
-        source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
-        mecca_geopy = geolocator.geocode("Mecca")
-        mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
-
-        source_geodesy=earth_model.LatLon(*source_latlong_tuple)
-        mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
-
-        full_distance=get_distance(source_geodesy, mecca_geodesy,route=route_abbr) #in km
-        x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=route_abbr)
-
-        source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
-        mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
-
-        step_distance= 1000 #in km
-        distances=np.arange(0,full_distance,step_distance)
-        frames=[]
-        for i,moved_distance in enumerate(distances):
-            fig = plt.figure(figsize=(14, 12))
-            ax = fig.add_subplot(111, projection='3d')
-            setup_plot(ax,R, route_name)
-            plot_sphere(ax,R)
-            plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
-            moving_point_xyz, bearing_to_mecca=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=route_abbr)
-            plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
-            zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
-            zenith_angle_opposite=R*np.sin(zenith_angle)
+if __name__=="__main__":
+    
+    for city in CITIES:
+        for route_abbr, route_name in ROUTES.items():
             
-            '''
-            angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
-            ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
-            '''
+            north_pole_xyz_tuple=(0,0,R)
+            earth_center_xyz_tuple=(0,0,0)
 
-            angle_wrt_north_pole_text=f"{(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2])):.0f}$^\\circ$"
-            ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-1200, angle_wrt_north_pole_text, fontsize=14, ha='right')
+            source_city_name=city
+            source_geopy = geolocator.geocode(source_city_name)
+            #source_latlong_tuple = (40.7128, -74.0060)  # New York City
+            source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
+            mecca_geopy = geolocator.geocode("Mecca")
+            mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
 
-            # Adding text next to the plot in the white space
-            # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
-            plt.figtext(0.8, 0.55, f"Distance To Mecca\n{moved_distance:.0f} Km", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
-            plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$ {bearing_to_direction(bearing_to_mecca)}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
-            plt.figtext(0.3, 0.5, f"{ROUTE_COMMENTS[route_abbr]}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
-            
-            # Save the current figure as an image (PNG format)
-            ax.view_init(elev=30, azim=-45) # defaults 30,-60
-            frame_filename = f'frame_{i}.png'
-            fig.savefig(frame_filename)
-            
-            # Open the image and add it to the frames list
-            frames.append(Image.open(frame_filename))
+            source_geodesy=earth_model.LatLon(*source_latlong_tuple)
+            mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
 
-        # Save the frames as a GIF
-        frames[0].save(f'{city}_{route_abbr}_route.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+            full_distance=get_distance(source_geodesy, mecca_geodesy,route=route_abbr) #in km
+            x_points, y_points, z_points=get_xyz4arc_points(source_geodesy, mecca_geodesy, n_points=100,route=route_abbr)
 
-        # Delete the individual frame files
-        for i in range(len(distances)):
-            os.remove(f'frame_{i}.png')
+            source_xyz_tuple=geodetic_to_cartesian(*source_latlong_tuple)
+            mecca_xyz_tuple=geodetic_to_cartesian(*mecca_latlong_tuple)
+
+            step_distance= 1000 #in km
+            distances=np.arange(0,full_distance,step_distance)
+            frames=[]
+            for i,moved_distance in enumerate(distances):
+                fig = plt.figure(figsize=(14, 12))
+                ax = fig.add_subplot(111, projection='3d')
+                setup_plot(ax,R, route_name)
+                plot_sphere(ax,R)
+                plot_arc(ax,x_points,y_points, z_points, source_xyz_tuple,mecca_xyz_tuple, earth_center_xyz_tuple,north_pole_xyz_tuple, source_city_name)
+                moving_point_xyz, bearing_to_mecca=get_xyz4moving_point(source_geodesy,mecca_geodesy, moved_distance,route=route_abbr)
+                plot_moving_point(ax,earth_center_xyz_tuple,north_pole_xyz_tuple,moving_point_xyz)
+                zenith_angle=np.arccos(moving_point_xyz[2]/R) #aka polar angle or theta i.e. angle wrt to z axis
+                zenith_angle_opposite=R*np.sin(zenith_angle)
+                
+                '''
+                angle_wrt_earth_center_text= f"{(180/np.pi)*zenith_angle:.0f}$^\\circ$"
+                ax.text(900, 0, 1050, angle_wrt_earth_center_text, fontsize=14, ha='right')
+                '''
+                angle_wrt_north_pole=(180/np.pi)*np.arctan(zenith_angle_opposite/(R-moving_point_xyz[2]))
+                angle_wrt_north_pole_text=f"{angle_wrt_north_pole:.0f}$^\\circ$"
+                ax.text(north_pole_xyz_tuple[0]+950, north_pole_xyz_tuple[1], north_pole_xyz_tuple[2]-1200, angle_wrt_north_pole_text, fontsize=14, ha='right')
+
+                # Adding text next to the plot in the white space
+                # The coordinates (x, y) are relative to the figure (0,0) is bottom left and (1,1) is top right
+                plt.figtext(0.8, 0.55, f"Distance To Mecca\n{moved_distance:.0f} Km", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor='lightgray', edgecolor='black', boxstyle='round,pad=0.5'))
+                plt.figtext(0.8, 0.45, f"Bearing To Mecca\n{bearing_to_mecca:.0f}$^\\circ$ {bearing_to_direction(bearing_to_mecca)}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
+                plt.figtext(0.3, 0.5, f"{ROUTE_COMMENTS[route_abbr]}", fontsize=12, color='black',ha='center',va='center',bbox=dict(facecolor=ROUTE_COLORS[route_abbr], edgecolor='black', boxstyle='round,pad=0.5'))
+                
+                # Save the current figure as an image (PNG format)
+                ax.view_init(elev=30, azim=-45) # defaults 30,-60
+                frame_filename = f'frame_{i}.png'
+                fig.savefig(frame_filename)
+                
+                # Open the image and add it to the frames list
+                frames.append(Image.open(frame_filename))
+
+            # Save the frames as a GIF
+            frames[0].save(f'{city}_{route_abbr}_route.gif', save_all=True, append_images=frames[1:], duration=1000, loop=0)
+
+            # Delete the individual frame files
+            for i in range(len(distances)):
+                os.remove(f'frame_{i}.png')
 
 
 
