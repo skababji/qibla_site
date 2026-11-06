@@ -5,16 +5,13 @@ using two methods, the **rhumb line** (loxodrome) and the **great circle** (orth
 and shows them side by side on two compasses. A **Show route animation** switch replaces
 the compasses with a live animation of both routes on a globe for the selected city,
 showing how the bearing stays fixed along the rhumb line but keeps changing along the
-great circle. The repo also includes pre-rendered 3D animations from Toronto, Vancouver
-and Santiago.
+great circle.
 
 The site argues that **the rhumb line is the method in line with the traditional way of
 finding the Qibla.** For North America this gives an East/Southeast direction, not the
 Northeast direction that most mosques use today.
 
-| Rhumb line (Toronto)                                           | Great circle (Toronto)                                             |
-| -------------------------------------------------------------- | ------------------------------------------------------------------ |
-| ![Rhumb line route from Toronto](Toronto_rhumb_line_route.gif) | ![Great circle route from Toronto](Toronto_great_circle_route.gif) |
+![Route animation from Toronto: the rhumb line holds 103° all the way, while the great circle starts at 54° and keeps turning](docs/screenshot.png)
 
 ## Why the rhumb line
 
@@ -35,8 +32,11 @@ Qibla, and that bearing is not held anywhere else along the path. Its geometry i
 defined relative to the **centre of the Earth** (the plane of the great circle passes
 through it), not to the North Pole.
 
-On the site, the rhumb-line compass stays fixed as you move the slider along the route.
-The great-circle compass keeps turning.
+On the site, the rhumb-line compass stays fixed as you move the slider along the route,
+while the great-circle compass keeps turning. With the route animation switched on, a
+point travels each route on a globe: its heading arrow keeps the same angle to north on
+the rhumb line, but swings round on the great circle (from Toronto: 54° at the start,
+141° on arrival).
 
 Knowledge of geometry is never a requirement for finding the Qibla in Shariah. If
 mathematical models are used, though, they should keep to the original Shariah frame of
@@ -115,9 +115,10 @@ Computed with the spherical formulas above:
 | Santiago   | 63° (ENE)         | 82° (E)                     | 13,223 km      | 13,149 km             |
 
 The app takes each city's coordinates from `worldcities.csv` and uses the Kaaba's
-coordinates (21.422487° N, 39.826206° E), so the calculation runs fully offline. It uses the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library. It
-computes the rhumb line on a sphere and the great circle on the WGS-84 ellipsoid
-(Vincenty), so its results can differ from this table by a fraction of a degree.
+coordinates (21.422487° N, 39.826206° E), so the calculation runs fully offline. It uses
+the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library, computing the rhumb line
+on a sphere and the great circle on the WGS-84 ellipsoid (Vincenty), so its results can
+differ slightly from this table.
 
 ## Running locally
 
@@ -131,31 +132,20 @@ uv installs the right Python version (see `.python-version`) and the locked
 dependencies (`uv.lock`) on the first run. Then open http://127.0.0.1:5050, pick a
 country and a city, and click **Calculate Bearing**.
 
-To regenerate the route animations (GIFs):
-
-```bash
-uv run spherical_animation.py
-```
-
 ## Project layout
 
 | Path                                  | Purpose                                         |
 | ------------------------------------- | ----------------------------------------------- |
 | `app.py`                            | Flask app and the bearing/distance calculations |
-| `templates/index.html`, `static/` | The web page, compasses and slider              |
-| `spherical_animation.py`            | Generates the 3D route GIFs                     |
-| `*_route.gif`                       | Pre-rendered route animations                   |
+| `templates/index.html`, `static/` | The web page, compasses, slider and route animation |
 | `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |
-| `experiments/`                      | Early prototypes and notebooks                  |
+| `docs/screenshot.png`               | Screenshot used in this README                  |
 
 ## Credits
 
 - City data: [SimpleMaps World Cities Database](https://simplemaps.com/data/world-cities)
   (Basic version), licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- Geocoding (animation script only): [Nominatim](https://nominatim.org/) / OpenStreetMap, via
-  [`geopy`](https://github.com/geopy/geopy). Data © OpenStreetMap contributors,
-  [ODbL](https://www.openstreetmap.org/copyright).
 - Geodesy: [`pygeodesy`](https://github.com/mrJean1/PyGeodesy).
 
 ## Author

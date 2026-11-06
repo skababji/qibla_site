@@ -74,13 +74,6 @@ def get_cities():
     country = request.form['country']
     return jsonify(cities_by_country.get(country, []))
 
-@app.route('/receive-data', methods=['POST'])
-def receive_data():
-    data = request.get_json()
-    sliderValue = data['sliderValue']
-    print(f'Received variable: {sliderValue}')
-    return jsonify({"status": "success", "received_variable": sliderValue})
-
 @app.route('/calculate_bearing', methods=['POST'])
 def calculate_bearing():
     city_id = request.form.get('city_id', '')

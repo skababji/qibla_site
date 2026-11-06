@@ -13,9 +13,9 @@
     --accent-ink: #ffffff;
     --gold: #b8860b;          /* Kaaba band */
 
-    --rhumb: #12806d;         /* rhumb line (matches green in the GIFs) */
+    --rhumb: #12806d;         /* rhumb line */
     --rhumb-soft: #e3f2ee;
-    --gc: #c0583f;            /* great circle (matches coral in the GIFs) */
+    --gc: #c0583f;            /* great circle */
     --gc-soft: #f8e7e2;
 
     --shadow: 0 1px 2px rgba(30, 42, 43, 0.06), 0 4px 16px rgba(30, 42, 43, 0.06);
