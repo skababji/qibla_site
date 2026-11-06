@@ -66,7 +66,7 @@ $$
 The **constant bearing** (the same at every point on the route):
 
 $$
-\theta_{\text{rhumb}} = \operatorname{atan2}\left(\Delta\lambda,\ \Delta\psi\right)
+\theta_{\text{rhumb}} = \mathrm{atan2}\left(\Delta\lambda,\ \Delta\psi\right)
 $$
 
 Here $\Delta\lambda$ is first reduced to the range $[-\pi, \pi]$ so the route takes the
@@ -88,7 +88,7 @@ it for centuries.
 The **initial bearing**, valid only at the starting point:
 
 $$
-\theta_{\text{gc}} = \operatorname{atan2}\left(\sin\Delta\lambda\cos\varphi_2,\ \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda\right)
+\theta_{\text{gc}} = \mathrm{atan2}\left(\sin\Delta\lambda\cos\varphi_2,\ \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda\right)
 $$
 
 The distance (haversine formula):
@@ -96,7 +96,7 @@ The distance (haversine formula):
 $$
 a = \sin^2\!\left(\frac{\Delta\varphi}{2}\right) + \cos\varphi_1\cos\varphi_2\sin^2\!\left(\frac{\Delta\lambda}{2}\right)
 \qquad
-d_{\text{gc}} = 2R\,\operatorname{atan2}\left(\sqrt{a},\ \sqrt{1-a}\right)
+d_{\text{gc}} = 2R\,\mathrm{atan2}\left(\sqrt{a},\ \sqrt{1-a}\right)
 $$
 
 Applying the bearing formula again at any point along the route gives a different
