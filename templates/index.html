@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='kaaba.svg') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ static_url('kaaba.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ static_url('styles.css') }}">
     <title>Qibla Direction in North America</title>
 </head>
 <body>
@@ -84,11 +84,11 @@
         <h3>Adjust the slider to see the difference in bearing when travelling along the route calculated using the rhumb line versus the one calculated using the great circle</h3>
         <div class="slider-labels">
             <div id="startLabel" class="slider-label"></div>
-            <div id="endLabel" class="slider-label"><img src="{{ url_for('static', filename='kaaba.svg') }}" alt="Kaaba"></div>
+            <div id="endLabel" class="slider-label"><img src="{{ static_url('kaaba.svg') }}" alt="Kaaba"></div>
         </div>
         <input type="range" id="bearingSlider" min="-360" max="360" value="0" aria-label="Position along the great circle route">
     </div>
     
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="{{ static_url('scripts.js') }}"></script>
 </body>
 </html>

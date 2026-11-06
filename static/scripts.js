@@ -523,8 +523,18 @@ function startAnimation() {
     const tick = (now) => {
         const phase = (now - t0) % (ANIM_TRAVEL_MS + ANIM_HOLD_MS);
         const f = Math.min(phase / ANIM_TRAVEL_MS, 1);
-        animState.scenes.forEach(scene => drawScene(scene, f));
         animState.frame = requestAnimationFrame(tick);
+        // Draw each globe separately so a problem in one never stops the other
+        animState.scenes.forEach(scene => {
+            if (scene.failed) return;
+            try {
+                drawScene(scene, f);
+            } catch (err) {
+                scene.failed = true;
+                console.error('Route animation failed:', err);
+                scene.readout.textContent = 'Animation error: ' + err.message;
+            }
+        });
     };
     animState.frame = requestAnimationFrame(tick);
 }

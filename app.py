@@ -1,9 +1,21 @@
-from flask import Flask, render_template, request, jsonify
+import os
+
+from flask import Flask, render_template, request, jsonify, url_for
 import pandas as pd
 from pygeodesy.ellipsoidalVincenty import LatLon as LatLon_e
 from pygeodesy.sphericalTrigonometry import LatLon as LatLon_s
 
 app = Flask(__name__)
+
+
+@app.context_processor
+def static_versioning():
+    """static_url('x.js') adds the file's modification time so browsers never use a stale copy."""
+    def static_url(filename):
+        path = os.path.join(app.static_folder, filename)
+        version = int(os.path.getmtime(path)) if os.path.exists(path) else 0
+        return url_for('static', filename=filename, v=version)
+    return {'static_url': static_url}
 
 # The Kaaba, Masjid al-Haram, Makkah (latitude, longitude in degrees)
 KAABA = (21.422487, 39.826206)
