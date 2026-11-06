@@ -1,27 +1,52 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
-import numpy as np
-from geopy.geocoders import Nominatim
 from pygeodesy.ellipsoidalVincenty import LatLon as LatLon_e
 from pygeodesy.sphericalTrigonometry import LatLon as LatLon_s
 
 app = Flask(__name__)
-geolocator = Nominatim(user_agent="qibla")
-places = pd.read_csv('worldcities.csv')
 
 # The Kaaba, Masjid al-Haram, Makkah (latitude, longitude in degrees)
 KAABA = (21.422487, 39.826206)
 
+
+def load_places(path='worldcities.csv'):
+    """Load cities and give each one a dropdown label that is unique within its country.
+
+    A name used once in a country is shown as is ("Toronto"). A repeated name gets its
+    state or province ("Springfield, Missouri"), and if that is still not unique, its
+    coordinates too ("Springfield, Pennsylvania (39.93, -75.34)").
+    """
+    places = pd.read_csv(path, dtype={'id': str})
+    places['admin_name'] = places['admin_name'].fillna('')
+
+    name_count = places.groupby(['country', 'city'])['city'].transform('size')
+    with_admin = places['city'] + places['admin_name'].map(lambda a: f', {a}' if a else '')
+    places['label'] = places['city'].where(name_count == 1, with_admin)
+
+    label_count = places.groupby(['country', 'label'])['label'].transform('size')
+    with_coords = places['label'] + places.apply(lambda r: f" ({r['lat']:.2f}, {r['lng']:.2f})", axis=1)
+    places['label'] = places['label'].where(label_count == 1, with_coords)
+
+    return places.sort_values('label', key=lambda col: col.str.casefold())
+
+
+places = load_places()
+places_by_id = places.set_index('id')
+countries = sorted(places['country'].unique(), key=str.casefold)
+cities_by_country = {
+    country: group[['id', 'label']].to_dict('records')
+    for country, group in places.groupby('country')
+}
+
+
 @app.route('/')
 def home():
-    countries = np.insert(np.unique(places['country'].sort_values().values), 0, '').tolist()
     return render_template('index.html', countries=countries)
 
 @app.route('/get_cities', methods=['POST'])
 def get_cities():
     country = request.form['country']
-    cities = np.unique(places[places['country'] == country]['city'].values).tolist()
-    return jsonify(cities)
+    return jsonify(cities_by_country.get(country, []))
 
 @app.route('/receive-data', methods=['POST'])
 def receive_data():
@@ -32,17 +57,15 @@ def receive_data():
 
 @app.route('/calculate_bearing', methods=['POST'])
 def calculate_bearing():
-    country = request.form['country']
-    city = request.form['city']
-    loc_query = {'city': city, 'country': country}
-    loc = geolocator.geocode(loc_query)
-
-    if not loc:
+    city_id = request.form.get('city_id', '')
+    if city_id not in places_by_id.index:
         return jsonify({"error": "Location not found"})
-    
-    i_elps = LatLon_e(loc.latitude, loc.longitude)
+    place = places_by_id.loc[city_id]
+    lat, lng = float(place['lat']), float(place['lng'])
+
+    i_elps = LatLon_e(lat, lng)
     m_elps = LatLon_e(*KAABA)
-    i_sphr = LatLon_s(loc.latitude, loc.longitude)
+    i_sphr = LatLon_s(lat, lng)
     m_sphr = LatLon_s(*KAABA)
     
     #rhumb line calc
@@ -57,7 +80,7 @@ def calculate_bearing():
     return jsonify({
         "rhumb_bearing": rhumb_bearing,
         "rhumb_distance": rhumb_dist,
-        "city_coords": f"{loc.latitude}, {loc.longitude}",
+        "city_coords": f"{lat}, {lng}",
         "gc_initial_bearing":gc_initial_bearing,
         "gc_final_bearing":gc_final_bearing,
         "gc_distance": gc_dist

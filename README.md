@@ -111,7 +111,8 @@ Computed with the spherical formulas above:
 | Vancouver  | 102° (ESE)        | 17° (NNE)                   | 14,808 km      | 11,974 km             |
 | Santiago   | 63° (ENE)         | 82° (E)                     | 13,223 km      | 13,149 km             |
 
-The app uses the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library. It
+The app takes each city's coordinates from `worldcities.csv` and uses the Kaaba's
+coordinates (21.422487° N, 39.826206° E), so the calculation runs fully offline. It uses the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library. It
 computes the rhumb line on a sphere and the great circle on the WGS-84 ellipsoid
 (Vincenty), so its results can differ from this table by a fraction of a degree.
 
@@ -141,7 +142,7 @@ uv run spherical_animation.py
 | `templates/index.html`, `static/` | The web page, compasses and slider              |
 | `spherical_animation.py`            | Generates the 3D route GIFs                     |
 | `*_route.gif`                       | Pre-rendered route animations                   |
-| `worldcities.csv`                   | Country/city list for the dropdowns             |
+| `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |
 | `experiments/`                      | Early prototypes and notebooks                  |
 
 ## Credits
@@ -149,7 +150,7 @@ uv run spherical_animation.py
 - City data: [SimpleMaps World Cities Database](https://simplemaps.com/data/world-cities)
   (Basic version), licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- Geocoding: [Nominatim](https://nominatim.org/) / OpenStreetMap, via
+- Geocoding (animation script only): [Nominatim](https://nominatim.org/) / OpenStreetMap, via
   [`geopy`](https://github.com/geopy/geopy). Data © OpenStreetMap contributors,
   [ODbL](https://www.openstreetmap.org/copyright).
 - Geodesy: [`pygeodesy`](https://github.com/mrJean1/PyGeodesy).

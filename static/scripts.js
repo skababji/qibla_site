@@ -53,8 +53,7 @@ document.getElementById('countrySelect').addEventListener('change', function() {
         let citySelect = document.getElementById('citySelect');
         citySelect.innerHTML = '<option value="">Select your city</option>';
         data.forEach(city => {
-            let option = new Option(city, city);
-            citySelect.add(option);
+            citySelect.add(new Option(city.label, city.id));
         });
         citySelect.style.display = 'block';
         document.getElementById('calculateButton').style.display = 'block';
@@ -64,13 +63,19 @@ document.getElementById('countrySelect').addEventListener('change', function() {
 document.getElementById('calculateButton').addEventListener('click', function(event) {
     event.preventDefault();
     const country = document.getElementById('countrySelect').value;
-    const city = document.getElementById('citySelect').value;
+    const citySelect = document.getElementById('citySelect');
+    const cityId = citySelect.value;
+    if (!cityId) {
+        document.getElementById('results').textContent = 'Please select a city.';
+        return;
+    }
+    const city = citySelect.options[citySelect.selectedIndex].text;
     fetch('/calculate_bearing', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'country=' + encodeURIComponent(country) + '&city=' + encodeURIComponent(city)
+        body: 'city_id=' + encodeURIComponent(cityId)
     }).then(response => response.json())
     .then(data => {
         if (data.error) {
