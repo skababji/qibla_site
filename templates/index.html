@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='kaaba.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Qibla Direction in North America</title>
 </head>
@@ -13,7 +17,7 @@
             <div class="text-content">
                 <p>The Qibla direction in North America should point towards the East/Southeast, not the Northeast as commonly and incorrectly adopted by the vast majority of mosques today. This is not because of a belief in a flat Earth or a disregard for science, but rather because any calculations must align with both the objectives and the <em>means</em> as defined by Shariah.</p>
 
-                <p>According to Islamic scripture and the early consensus of the four authoritative schools of interpretation, the reference point in the spherical coordinate system is deemed to be the north pole, not the center of the Earth. The Arabs relied on stars to locate the North Pole and accordingly ascertain the Qibla direction. Allah said:<strong> وَعَلَامَاتٍ ۚ وَبِالنَّجْمِ هُمْ يَهْتَدُونَ </strong> which means: Allah made clear landmarks on earth (not in earth) and stars (outside earth) for mankind to guide themselves during days and nights. In Shariah, it is unequivocally established that utilizing the four cardinal directions as the framework for identifying the Qibla is unquestionably valid. Any method, such as the great circle, that yields a direction significantly deviating from that will be considered questionable and shall not be permitted to replace the Shariah's frame of reference.</p>
+                <p>According to Islamic scripture and the early consensus of the four authoritative schools of interpretation, the reference point in the spherical coordinate system is deemed to be the north pole, not the center of the Earth. The Arabs relied on stars to locate the North Pole and accordingly ascertain the Qibla direction. Allah said: <span class="verse" lang="ar" dir="rtl">وَعَلَامَاتٍ ۚ وَبِالنَّجْمِ هُمْ يَهْتَدُونَ</span> which means: Allah made clear landmarks on earth (not in earth) and stars (outside earth) for mankind to guide themselves during days and nights. In Shariah, it is unequivocally established that utilizing the four cardinal directions as the framework for identifying the Qibla is unquestionably valid. Any method, such as the great circle, that yields a direction significantly deviating from that will be considered questionable and shall not be permitted to replace the Shariah's frame of reference.</p>
 
                 <p>Therefore, I adhere to the <em>constant</em> bearing of the <strong>rhumb line</strong>, rather than the initial bearing of the great circle, which entirely disregards the frame of reference as outlined by Shariah.</p>
 
@@ -43,27 +47,27 @@
         <h2>Comparison of Rhumb Line and Great Circle Line</h2>
     </div>
     <div class="compass-container" id="compassContainer">
-        <div class="compass-content">
+        <div class="compass-content route-rhumb">
             <div class="compass">
                 <h2>Rhumb Line</h2>
                 <div id="compass1"></div>
             </div>
             <div class="results-content" id="rhumbResults" style="display: none;">
-                <h2>Results</h2>
+                <h3>Results</h3>
                 <p id="rhumbResultsText"></p>
             </div>
-            <p class="note-text" id="rhumbNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass does NOT move throughout the path.</p>
+            <p class="note-text" id="rhumbNote" style="display: none;">NOTE: Compass does NOT move throughout the path.</p>
         </div>
-        <div class="compass-content">
+        <div class="compass-content route-gc">
             <div class="compass">
                 <h2>Great Circle Line</h2>
                 <div id="compass2"></div>
             </div>
             <div class="results-content" id="greatCircleResults" style="display: none;">
-                <h2>Results</h2>
+                <h3>Results</h3>
                 <p id="greatCircleResultsText"></p>
             </div>
-            <p class="note-text" id="greatCircleNote" style="display: none; position: absolute; bottom: 10px; right: 10px;">NOTE: Compass DOES move throughout the path.</p>
+            <p class="note-text" id="greatCircleNote" style="display: none;">NOTE: Compass DOES move throughout the path.</p>
         </div>
     </div>
     
@@ -73,7 +77,7 @@
             <div id="startLabel" class="slider-label"></div>
             <div id="endLabel" class="slider-label"><img src="{{ url_for('static', filename='kaaba.svg') }}" alt="Kaaba"></div>
         </div>
-        <input type="range" id="bearingSlider" min="-360" max="360" value="0" style="width: 100%;">
+        <input type="range" id="bearingSlider" min="-360" max="360" value="0" aria-label="Position along the great circle route">
     </div>
     
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
