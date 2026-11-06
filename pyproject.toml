@@ -3,8 +3,4 @@ name = "qibla-site"
 version = "1.0.0"
 description = "Qibla direction calculator comparing rhumb line and great circle methods"
 requires-python = ">=3.12"
-dependencies = [
-    "flask>=3.1.3",
-    "pandas>=3.1.1",
-    "pygeodesy>=26.10.26",
-]
+dependencies = []

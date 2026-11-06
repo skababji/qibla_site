@@ -35,103 +35,115 @@ function showCompass(containerId, bearing, routeVar) {
 showCompass('compass1', null, '--rhumb');
 showCompass('compass2', null, '--gc');
 
-document.getElementById('countrySelect').addEventListener('change', function() {
-    const country = this.value;
-    if (!country) {
-        document.getElementById('citySelect').style.display = 'none';
+// Countries and cities come from static JSON files built from worldcities.csv
+const countrySelect = document.getElementById('countrySelect');
+const citySelect = document.getElementById('citySelect');
+const cityCache = {};   // country file name -> [[label, lat, lng], ...]
+let currentCities = [];
+
+fetch('data/countries.json')
+    .then(response => response.json())
+    .then(countries => {
+        countries.forEach(([name, file]) => countrySelect.add(new Option(name, file)));
+    })
+    .catch(() => {
+        document.getElementById('results').textContent = 'Could not load the list of countries.';
+    });
+
+function loadCities(file) {
+    if (!cityCache[file]) {
+        cityCache[file] = fetch(`data/cities/${file}.json`).then(response => response.json());
+    }
+    return cityCache[file];
+}
+
+countrySelect.addEventListener('change', function() {
+    const file = this.value;
+    if (!file) {
+        citySelect.style.display = 'none';
         document.getElementById('calculateButton').style.display = 'none';
         return;
     }
-    fetch('/get_cities', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'country=' + encodeURIComponent(country)
-    }).then(response => response.json())
-    .then(data => {
-        let citySelect = document.getElementById('citySelect');
+    loadCities(file).then(cities => {
+        if (countrySelect.value !== file) return;  // another country was picked meanwhile
+        currentCities = cities;
         citySelect.innerHTML = '<option value="">Select your city</option>';
-        data.forEach(city => {
-            citySelect.add(new Option(city.label, city.id));
-        });
+        cities.forEach(([label], index) => citySelect.add(new Option(label, index)));
         citySelect.style.display = 'block';
         document.getElementById('calculateButton').style.display = 'block';
+    }).catch(() => {
+        delete cityCache[file];
+        document.getElementById('results').textContent = 'Could not load the list of cities.';
     });
 });
 
 document.getElementById('calculateButton').addEventListener('click', function(event) {
     event.preventDefault();
-    const country = document.getElementById('countrySelect').value;
-    const citySelect = document.getElementById('citySelect');
-    const cityId = citySelect.value;
-    if (!cityId) {
+    const cityIndex = citySelect.value;
+    if (cityIndex === '' || !currentCities[cityIndex]) {
         document.getElementById('results').textContent = 'Please select a city.';
         return;
     }
-    const city = citySelect.options[citySelect.selectedIndex].text;
-    fetch('/calculate_bearing', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'city_id=' + encodeURIComponent(cityId)
-    }).then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            document.getElementById('results').textContent = data.error;
-            return;
-        }
+    const [city, lat, lng] = currentCities[cityIndex];
+    const country = countrySelect.options[countrySelect.selectedIndex].text;
 
-        const initial = Number(data.gc_initial_bearing);
-        const final = Number(data.gc_final_bearing);
+    let data;
+    try {
+        data = qibla.compute(lat, lng);
+    } catch (err) {
+        console.error(err);
+        document.getElementById('results').textContent = 'Could not calculate the route for this city.';
+        return;
+    }
 
-        document.getElementById('results').textContent = 'Your city coordinates: ' + data.city_coords;
+    const initial = Number(data.gc_initial_bearing);
+    const final = Number(data.gc_final_bearing);
 
-        document.getElementById('rhumbResultsText').innerHTML = statsHtml([
-            ['Bearing angle', formatBearing(data.rhumb_bearing)],
-            ['Distance', formatDistance(data.rhumb_distance)],
-        ]);
-        document.getElementById('greatCircleResultsText').innerHTML = statsHtml([
-            ['Initial bearing', formatBearing(initial)],
-            ['Final bearing', formatBearing(final)],
-            ['Distance', formatDistance(data.gc_distance)],
-        ]);
+    document.getElementById('results').textContent = 'Your city coordinates: ' + data.city_coords;
 
-        document.getElementById('rhumbResults').style.display = 'block';
-        document.getElementById('greatCircleResults').style.display = 'block';
+    document.getElementById('rhumbResultsText').innerHTML = statsHtml([
+        ['Bearing angle', formatBearing(data.rhumb_bearing)],
+        ['Distance', formatDistance(data.rhumb_distance)],
+    ]);
+    document.getElementById('greatCircleResultsText').innerHTML = statsHtml([
+        ['Initial bearing', formatBearing(initial)],
+        ['Final bearing', formatBearing(final)],
+        ['Distance', formatDistance(data.gc_distance)],
+    ]);
 
-        showCompass('compass1', data.rhumb_bearing, '--rhumb');
-        showCompass('compass2', initial, '--gc');
+    document.getElementById('rhumbResults').style.display = 'block';
+    document.getElementById('greatCircleResults').style.display = 'block';
 
-        // Slider moves the great-circle compass from the initial to the final bearing
-        const slider = document.getElementById('bearingSlider');
-        const reversed = initial > final;
-        slider.min = Math.min(initial, final);
-        slider.max = Math.max(initial, final);
-        slider.value = slider.min;
-        slider.oninput = function() {
-            const value = parseFloat(slider.value);
-            const bearing = reversed ? initial - (value - Number(slider.min)) : value;
-            showCompass('compass2', bearing, '--gc');
-        };
+    showCompass('compass1', data.rhumb_bearing, '--rhumb');
+    showCompass('compass2', initial, '--gc');
 
-        document.getElementById('startLabel').textContent = `${city}, ${country}`;
-        document.querySelector('.bearing-slider-container').classList.add('show');
+    // Slider moves the great-circle compass from the initial to the final bearing
+    const slider = document.getElementById('bearingSlider');
+    const reversed = initial > final;
+    slider.min = Math.min(initial, final);
+    slider.max = Math.max(initial, final);
+    slider.value = slider.min;
+    slider.oninput = function() {
+        const value = parseFloat(slider.value);
+        const bearing = reversed ? initial - (value - Number(slider.min)) : value;
+        showCompass('compass2', bearing, '--gc');
+    };
 
-        document.getElementById('rhumbNote').style.display = 'block';
-        document.getElementById('greatCircleNote').style.display = 'block';
+    document.getElementById('startLabel').textContent = `${city}, ${country}`;
+    document.querySelector('.bearing-slider-container').classList.add('show');
 
-        // Route animation (shown instead of the compasses when the switch is on)
-        animState.data = data;
-        animState.city = city.split(',')[0];
-        document.getElementById('animSwitch').hidden = false;
-        if (document.getElementById('animToggle').checked) {
-            startAnimation();
-        }
+    document.getElementById('rhumbNote').style.display = 'block';
+    document.getElementById('greatCircleNote').style.display = 'block';
 
-        document.querySelector('.compass-title-container').scrollIntoView({ behavior: 'smooth' });
-    });
+    // Route animation (shown instead of the compasses when the switch is on)
+    animState.data = data;
+    animState.city = city.split(',')[0];
+    document.getElementById('animSwitch').hidden = false;
+    if (document.getElementById('animToggle').checked) {
+        startAnimation();
+    }
+
+    document.querySelector('.compass-title-container').scrollIntoView({ behavior: 'smooth' });
 });
 
 // bearing: degrees clockwise from north, or null to draw an empty dial

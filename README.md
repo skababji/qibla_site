@@ -1,6 +1,8 @@
 # Qibla in North America: Rhumb Line vs. Great Circle
 
-A small Flask web app that calculates the Qibla direction from any city in the world
+**Live site: https://skababji.github.io/qibla_site/**
+
+A small web app that calculates the Qibla direction from any city in the world
 using two methods, the **rhumb line** (loxodrome) and the **great circle** (orthodrome),
 and shows them side by side on two compasses. A **Show route animation** switch replaces
 the compasses with a live animation of both routes on a globe for the selected city,
@@ -114,31 +116,37 @@ Computed with the spherical formulas above:
 | Vancouver  | 102° (ESE)        | 17° (NNE)                   | 14,808 km      | 11,974 km             |
 | Santiago   | 63° (ENE)         | 82° (E)                     | 13,223 km      | 13,149 km             |
 
-The app takes each city's coordinates from `worldcities.csv` and uses the Kaaba's
-coordinates (21.422487° N, 39.826206° E), so the calculation runs fully offline. It uses
-the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library, computing the rhumb line
-on a sphere and the great circle on the WGS-84 ellipsoid (Vincenty), so its results can
-differ slightly from this table.
+The site runs entirely in the browser, using each city's coordinates from
+`worldcities.csv` and the Kaaba's coordinates (21.422487° N, 39.826206° E). The rhumb
+line is computed with the formulas above on a sphere of mean Earth radius; the great
+circle is computed on the WGS-84 ellipsoid with
+[GeographicLib](https://geographiclib.sourceforge.io/), so its results can differ slightly
+from this table.
 
 ## Running locally
 
-This project uses [uv](https://docs.astral.sh/uv/). With uv installed:
+The site is plain static files. A small build script (Python standard library only)
+splits `worldcities.csv` into one file per country and writes the site to `_site/`:
 
 ```bash
-uv run app.py
+uv run build.py --serve
 ```
 
-uv installs the right Python version (see `.python-version`) and the locked
-dependencies (`uv.lock`) on the first run. Then open http://127.0.0.1:5050, pick a
+or, without uv, `python3 build.py --serve`. Then open http://127.0.0.1:5050, pick a
 country and a city, and click **Calculate Bearing**.
+
+Every push to `main` rebuilds and publishes the site to GitHub Pages automatically
+(see `.github/workflows/pages.yml`).
 
 ## Project layout
 
 | Path                                  | Purpose                                         |
 | ------------------------------------- | ----------------------------------------------- |
-| `app.py`                            | Flask app and the bearing/distance calculations |
-| `templates/index.html`, `static/` | The web page, compasses, slider and route animation |
+| `web/index.html`, `web/static/`     | The web page, compasses, slider and route animation |
+| `web/static/qibla.js`               | Rhumb line and great circle calculations        |
+| `build.py`                          | Builds the static site into `_site/`            |
 | `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |
+| `.github/workflows/pages.yml`       | Publishes the site to GitHub Pages              |
 | `docs/screenshot.png`               | Screenshot used in this README                  |
 
 ## Credits
@@ -146,7 +154,8 @@ country and a city, and click **Calculate Bearing**.
 - City data: [SimpleMaps World Cities Database](https://simplemaps.com/data/world-cities)
   (Basic version), licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- Geodesy: [`pygeodesy`](https://github.com/mrJean1/PyGeodesy).
+- Geodesy: [GeographicLib](https://geographiclib.sourceforge.io/) by Charles Karney
+  (MIT License), included in `web/static/vendor/`.
 
 ## Author
 
