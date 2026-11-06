@@ -131,11 +131,11 @@ em, strong {
 /* ---------- Top section: essay + calculator ---------- */
 .container {
     display: flex;
+    flex-direction: column;
     gap: 24px;
     max-width: 1200px;
     margin: 0 auto;
     padding: 32px 24px 0;
-    align-items: flex-start;
 }
 
 .content,
@@ -147,16 +147,35 @@ em, strong {
     padding: 32px;
 }
 
-.content {
-    flex: 2;
+.content,
+.sidebar {
     min-width: 0;
 }
 
-.sidebar {
-    flex: 1;
-    min-width: 0;
-    position: sticky;
-    top: 24px;
+/* Country, city and button sit in one row on wide screens */
+.calc-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.calc-form select {
+    flex: 1 1 240px;
+    max-width: 340px;
+    margin: 0;
+}
+
+.calc-form .button-container {
+    flex: 0 0 auto;
+}
+
+.calc-form button {
+    width: auto;
+    height: 100%;
+    padding: 12px 28px;
 }
 
 .sidebar h1 {
@@ -203,6 +222,14 @@ select {
     background-color: var(--surface-2);
     border: 1px solid var(--line-strong);
     border-radius: 8px;
+    /* Same look on iPhone Safari as elsewhere (Safari ignores padding on native selects) */
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 48px;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888f8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
 }
 
 select:focus,
@@ -446,14 +473,21 @@ button:hover {
 /* ---------- Small screens ---------- */
 @media (max-width: 860px) {
     .container {
-        flex-direction: column;
-        align-items: stretch;
         padding: 16px 16px 0;
         gap: 16px;
     }
 
-    .sidebar {
-        position: static;
+    .calc-form {
+        flex-direction: column;
+    }
+
+    .calc-form select {
+        flex: none;
+        max-width: none;
+    }
+
+    .calc-form button {
+        width: 100%;
     }
 
     .content,
