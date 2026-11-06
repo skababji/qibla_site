@@ -90,7 +90,7 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
 
 // Once results are showing, keep them in step with the selected city
 citySelect.addEventListener('change', function() {
-    if (lastCalculated && selectionKey()) {
+    if ((lastCalculated || document.getElementById('animToggle').checked) && selectionKey()) {
         calculate({ scroll: false });
     }
 });
@@ -156,8 +156,9 @@ function calculate({ scroll }) {
     // Route animation (shown instead of the compasses when the switch is on)
     animState.data = data;
     animState.city = city.split(',')[0];
-    document.getElementById('animSwitch').hidden = false;
-    if (document.getElementById('animToggle').checked) {
+    const animOn = document.getElementById('animToggle').checked;
+    document.body.classList.toggle('mode-animation', animOn);
+    if (animOn) {
         startAnimation();
     }
 
@@ -291,17 +292,20 @@ const animState = { data: null, city: '', frame: null, scenes: [] };
 
 const animToggle = document.getElementById('animToggle');
 animToggle.addEventListener('change', function() {
-    document.body.classList.toggle('mode-animation', this.checked);
     if (!this.checked) {
+        document.body.classList.remove('mode-animation');
         stopAnimation();
-    } else if (selectionKey() && selectionKey() !== lastCalculated) {
-        calculate({ scroll: false });  // a different city is selected: calculate it (this starts the animation)
+    } else if (selectionKey()) {
+        calculate({ scroll: false });  // same as clicking Calculate Bearing; this starts the animation
+    } else if (animState.data) {
+        document.body.classList.add('mode-animation');
+        startAnimation();              // no city selected: replay the last calculated one
     } else {
-        startAnimation();
+        document.getElementById('results').textContent = 'Select a country and city to see the animation.';
     }
 });
-// Browsers can restore a checkbox after reload; keep the page in step with it
-document.body.classList.toggle('mode-animation', animToggle.checked);
+// Always start with the switch off, even if the browser restores it after a reload
+animToggle.checked = false;
 
 function toRad(d) { return d * Math.PI / 180; }
 function toDeg(r) { return r * 180 / Math.PI; }
@@ -404,8 +408,8 @@ function drawArrow(ctx, from, dx, dy, len, color, width, head) {
 
 // Position along the sampled path at fraction f (0..1)
 function samplePath(path, f) {
-    const pos = f * (path.length - 1);
-    const i = Math.min(Math.floor(pos), path.length - 2);
+    const pos = Math.min(Math.max(f, 0), 1) * (path.length - 1);
+    const i = Math.max(0, Math.min(Math.floor(pos), path.length - 2));
     const t = path.length > 1 ? pos - i : 0;
     const a = path[i], b = path[Math.min(i + 1, path.length - 1)];
     return {
@@ -559,8 +563,9 @@ function startAnimation() {
 
     const t0 = performance.now();
     const tick = (now) => {
-        const phase = (now - t0) % (ANIM_TRAVEL_MS + ANIM_HOLD_MS);
-        const f = Math.min(phase / ANIM_TRAVEL_MS, 1);
+        // A frame's timestamp can be slightly earlier than t0, so never go below zero
+        const phase = Math.max(0, now - t0) % (ANIM_TRAVEL_MS + ANIM_HOLD_MS);
+        const f = Math.min(Math.max(phase / ANIM_TRAVEL_MS, 0), 1);
         animState.frame = requestAnimationFrame(tick);
         // Draw each globe separately so a problem in one never stops the other
         animState.scenes.forEach(scene => {
