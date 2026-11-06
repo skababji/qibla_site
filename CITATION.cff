@@ -8,7 +8,8 @@ authors:
     orcid: "https://orcid.org/0000-0002-7642-2280"
 repository-code: "https://github.com/skababji/qibla_site"
 license: MIT
-date-released: "2024-05-27"
+version: "1.0.0"
+date-released: "2026-11-06"
 keywords:
   - qibla
   - rhumb line
