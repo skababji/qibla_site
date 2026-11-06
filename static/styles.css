@@ -394,6 +394,98 @@ button:hover {
     text-align: center;
 }
 
+/* ---------- Animation switch ---------- */
+.view-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    user-select: none;
+}
+
+.view-switch[hidden] {
+    display: none;
+}
+
+.view-switch input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.switch-track {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex: none;
+    border-radius: 13px;
+    background: var(--line-strong);
+    transition: background-color 0.2s ease;
+}
+
+.switch-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.view-switch input:checked + .switch-track {
+    background: var(--accent);
+}
+
+.view-switch input:checked + .switch-track .switch-thumb {
+    transform: translateX(18px);
+}
+
+.view-switch input:focus-visible + .switch-track {
+    outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    outline-offset: 2px;
+}
+
+/* ---------- Route animation ---------- */
+.route-anim {
+    display: none;
+}
+
+.route-anim canvas {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    margin: 0 auto;
+}
+
+.anim-readout {
+    margin: 8px 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    min-height: 1.6em;
+}
+
+.mode-animation .route-anim {
+    display: block;
+}
+
+.mode-animation #compass1,
+.mode-animation #compass2,
+.mode-animation .note-text,
+.mode-animation .bearing-slider-container {
+    display: none !important;
+}
+
 /* ---------- Slider ---------- */
 .bearing-slider-container {
     display: none; /* shown after a calculation */

@@ -8,6 +8,20 @@ app = Flask(__name__)
 # The Kaaba, Masjid al-Haram, Makkah (latitude, longitude in degrees)
 KAABA = (21.422487, 39.826206)
 
+ROUTE_SAMPLES = 150  # points per route for the animation
+
+
+def route_samples(total_m, point_at, bearing_at, final_bearing):
+    """Sample a route for the animation as [lat, lon, bearing, remaining_km] rows."""
+    rows = []
+    for i in range(ROUTE_SAMPLES + 1):
+        travelled = total_m * i / ROUTE_SAMPLES
+        point = point_at(travelled)
+        bearing = final_bearing if i == ROUTE_SAMPLES else bearing_at(point)
+        rows.append([round(point.lat, 4), round(point.lon, 4), round(bearing % 360, 1),
+                     round((total_m - travelled) / 1000)])
+    return rows
+
 
 def load_places(path='worldcities.csv'):
     """Load cities and give each one a dropdown label that is unique within its country.
@@ -68,22 +82,40 @@ def calculate_bearing():
     i_sphr = LatLon_s(lat, lng)
     m_sphr = LatLon_s(*KAABA)
     
-    #rhumb line calc
-    rhumb_bearing = round(i_sphr.rhumbBearingTo(m_sphr), 0)
-    rhumb_dist = round(i_sphr.rhumbDistanceTo(m_sphr) / 1000, 0)
-    
-    #great circlecalc
-    gc_initial_bearing=round(i_elps.initialBearingTo(m_elps), 0)
-    gc_final_bearing=str(round(i_elps.finalBearingTo(m_elps), 0))
-    gc_dist=round(i_elps.distanceTo(m_elps)/1000, 0)
-    
+    try:
+        # rhumb line (sphere): one constant bearing all the way
+        rhumb_bearing_exact = i_sphr.rhumbBearingTo(m_sphr)
+        rhumb_dist_m = i_sphr.rhumbDistanceTo(m_sphr)
+
+        # great circle (WGS-84 ellipsoid): bearing changes along the route
+        gc_initial_exact = i_elps.initialBearingTo(m_elps)
+        gc_final_exact = i_elps.finalBearingTo(m_elps)
+        gc_dist_m = i_elps.distanceTo(m_elps)
+
+        paths = {
+            "rhumb": route_samples(
+                rhumb_dist_m,
+                point_at=lambda d: i_sphr.rhumbDestination(d, rhumb_bearing_exact),
+                bearing_at=lambda p: rhumb_bearing_exact,
+                final_bearing=rhumb_bearing_exact),
+            "gc": route_samples(
+                gc_dist_m,
+                point_at=lambda d: i_elps.destination(d, gc_initial_exact),
+                bearing_at=lambda p: p.initialBearingTo(m_elps),
+                final_bearing=gc_final_exact),
+        }
+    except Exception:  # e.g. Vincenty not converging for a nearly antipodal city
+        return jsonify({"error": "Could not calculate the route for this city"})
+
     return jsonify({
-        "rhumb_bearing": rhumb_bearing,
-        "rhumb_distance": rhumb_dist,
+        "rhumb_bearing": round(rhumb_bearing_exact, 0),
+        "rhumb_distance": round(rhumb_dist_m / 1000, 0),
         "city_coords": f"{lat}, {lng}",
-        "gc_initial_bearing":gc_initial_bearing,
-        "gc_final_bearing":gc_final_bearing,
-        "gc_distance": gc_dist
+        "gc_initial_bearing": round(gc_initial_exact, 0),
+        "gc_final_bearing": str(round(gc_final_exact, 0)),
+        "gc_distance": round(gc_dist_m / 1000, 0),
+        "kaaba": KAABA,
+        "paths": paths,
     })
 
 if __name__ == '__main__':

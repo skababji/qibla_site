@@ -2,8 +2,11 @@
 
 A small Flask web app that calculates the Qibla direction from any city in the world
 using two methods, the **rhumb line** (loxodrome) and the **great circle** (orthodrome),
-and shows them side by side on two compasses. It also includes 3D animations of both
-routes to Mecca from Toronto, Vancouver and Santiago.
+and shows them side by side on two compasses. A **Show route animation** switch replaces
+the compasses with a live animation of both routes on a globe for the selected city,
+showing how the bearing stays fixed along the rhumb line but keeps changing along the
+great circle. The repo also includes pre-rendered 3D animations from Toronto, Vancouver
+and Santiago.
 
 The site argues that **the rhumb line is the method in line with the traditional way of
 finding the Qibla.** For North America this gives an East/Southeast direction, not the
