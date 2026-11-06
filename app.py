@@ -9,6 +9,9 @@ app = Flask(__name__)
 geolocator = Nominatim(user_agent="qibla")
 places = pd.read_csv('worldcities.csv')
 
+# The Kaaba, Masjid al-Haram, Makkah (latitude, longitude in degrees)
+KAABA = (21.422487, 39.826206)
+
 @app.route('/')
 def home():
     countries = np.insert(np.unique(places['country'].sort_values().values), 0, '').tolist()
@@ -33,15 +36,14 @@ def calculate_bearing():
     city = request.form['city']
     loc_query = {'city': city, 'country': country}
     loc = geolocator.geocode(loc_query)
-    mecca = geolocator.geocode("Mecca")
 
     if not loc:
         return jsonify({"error": "Location not found"})
     
     i_elps = LatLon_e(loc.latitude, loc.longitude)
-    m_elps = LatLon_e(mecca.latitude, mecca.longitude)
+    m_elps = LatLon_e(*KAABA)
     i_sphr = LatLon_s(loc.latitude, loc.longitude)
-    m_sphr = LatLon_s(mecca.latitude, mecca.longitude)
+    m_sphr = LatLon_s(*KAABA)
     
     #rhumb line calc
     rhumb_bearing = round(i_sphr.rhumbBearingTo(m_sphr), 0)

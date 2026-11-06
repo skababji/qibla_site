@@ -34,6 +34,7 @@ ROUTE_COMMENTS={
 CITIES=["Toronto", "Vancouver", "Santiago"]
 # CITIES=["Vancouver"]
 R = 6371.0 # Radius of the Earth in kilometers
+KAABA = (21.422487, 39.826206) # The Kaaba, Masjid al-Haram, Makkah (lat, lon)
 
 
 
@@ -262,8 +263,7 @@ if __name__=="__main__":
             source_geopy = geolocator.geocode(source_city_name)
             #source_latlong_tuple = (40.7128, -74.0060)  # New York City
             source_latlong_tuple=(source_geopy.latitude, source_geopy.longitude)
-            mecca_geopy = geolocator.geocode("Mecca")
-            mecca_latlong_tuple=(mecca_geopy.latitude, mecca_geopy.longitude)
+            mecca_latlong_tuple=KAABA
 
             source_geodesy=earth_model.LatLon(*source_latlong_tuple)
             mecca_geodesy=earth_model.LatLon(*mecca_latlong_tuple)
