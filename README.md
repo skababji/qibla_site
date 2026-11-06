@@ -59,26 +59,26 @@ Notation:
 First compute the difference in *isometric latitude*, which is the north–south distance
 on a Mercator projection:
 
-$$
+```math
 \Delta\psi = \ln\!\left(\frac{\tan\left(\frac{\pi}{4} + \frac{\varphi_2}{2}\right)}{\tan\left(\frac{\pi}{4} + \frac{\varphi_1}{2}\right)}\right)
-$$
+```
 
 The **constant bearing** (the same at every point on the route):
 
-$$
+```math
 \theta_{\text{rhumb}} = \mathrm{atan2}\left(\Delta\lambda,\ \Delta\psi\right)
-$$
+```
 
 Here $\Delta\lambda$ is first reduced to the range $[-\pi, \pi]$ so the route takes the
 shorter way around in longitude.
 
 The distance along the rhumb line:
 
-$$
+```math
 q = \begin{cases} \dfrac{\Delta\varphi}{\Delta\psi} & \text{if } \Delta\psi \neq 0 \\[2mm] \cos\varphi_1 & \text{if } \Delta\psi = 0 \text{ (due east/west)} \end{cases}
 \qquad
 d_{\text{rhumb}} = R\sqrt{\Delta\varphi^2 + q^2\,\Delta\lambda^2}
-$$
+```
 
 On a Mercator map the rhumb line is a straight line, which is why sailors navigated with
 it for centuries.
@@ -87,17 +87,17 @@ it for centuries.
 
 The **initial bearing**, valid only at the starting point:
 
-$$
+```math
 \theta_{\text{gc}} = \mathrm{atan2}\left(\sin\Delta\lambda\cos\varphi_2,\ \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda\right)
-$$
+```
 
 The distance (haversine formula):
 
-$$
+```math
 a = \sin^2\!\left(\frac{\Delta\varphi}{2}\right) + \cos\varphi_1\cos\varphi_2\sin^2\!\left(\frac{\Delta\lambda}{2}\right)
 \qquad
 d_{\text{gc}} = 2R\,\mathrm{atan2}\left(\sqrt{a},\ \sqrt{1-a}\right)
-$$
+```
 
 Applying the bearing formula again at any point along the route gives a different
 value, so the great-circle direction to Mecca keeps changing as you travel.
