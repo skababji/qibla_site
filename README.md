@@ -151,6 +151,10 @@ country and a city, and click **Calculate Bearing**.
 ## Author
 
 Samer El Kababji, PhD, P.Eng., London, Ontario
+([ORCID 0000-0002-7642-2280](https://orcid.org/0000-0002-7642-2280))
+
+If you use or build on this work, an acknowledgment would be appreciated. GitHub's
+**Cite this repository** button (top right of the repo page) gives a ready-made citation.
 
 ## License
 

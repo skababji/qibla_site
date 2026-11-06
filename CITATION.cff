@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use or build on this work, an acknowledgment would be appreciated."
+title: "Qibla in North America: Rhumb Line vs. Great Circle"
+type: software
+authors:
+  - family-names: "El Kababji"
+    given-names: "Samer"
+    orcid: "https://orcid.org/0000-0002-7642-2280"
+repository-code: "https://github.com/skababji/qibla_site"
+license: MIT
+date-released: "2024-05-27"
+keywords:
+  - qibla
+  - rhumb line
+  - great circle
+  - loxodrome
+  - geodesy
