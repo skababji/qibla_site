@@ -102,7 +102,7 @@ d_{\text{gc}} = 2R\,\mathrm{atan2}\left(\sqrt{a},\ \sqrt{1-a}\right)
 Applying the bearing formula again at any point along the route gives a different
 value, so the great-circle direction to Mecca keeps changing as you travel.
 
-In both cases, normalise the bearing to $0^\circ$–$360^\circ$ with
+In both cases, normalise the bearing to between $0^\circ$ and $360^\circ$ with
 $\theta = (\theta_{\text{deg}} + 360) \bmod 360$.
 
 ### Example results
