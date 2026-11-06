@@ -8,7 +8,7 @@ authors:
     orcid: "https://orcid.org/0000-0002-7642-2280"
 repository-code: "https://github.com/skababji/qibla_site"
 license: MIT
-version: "1.0.0"
+version: "1.1.0"
 date-released: "2026-11-06"
 keywords:
   - qibla
