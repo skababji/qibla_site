@@ -156,7 +156,7 @@ uv run spherical_animation.py
 
 ## Author
 
-Samer El Kababji, PhD, MEng, London, Ontario
+Samer El Kababji, PhD, P.Eng., London, Ontario
 
 ## License
 
