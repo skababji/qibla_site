@@ -62,4 +62,4 @@ def calculate_bearing():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)  # 5000 is used by AirPlay on macOS

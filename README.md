@@ -9,8 +9,8 @@ The site argues that **the rhumb line is the method in line with the traditional
 finding the Qibla.** For North America this gives an East/Southeast direction, not the
 Northeast direction that most mosques use today.
 
-| Rhumb line (Toronto) | Great circle (Toronto) |
-|---|---|
+| Rhumb line (Toronto)                                           | Great circle (Toronto)                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------------------ |
 | ![Rhumb line route from Toronto](Toronto_rhumb_line_route.gif) | ![Great circle route from Toronto](Toronto_great_circle_route.gif) |
 
 ## Why the rhumb line
@@ -104,12 +104,12 @@ $\theta = (\theta_{\text{deg}} + 360) \bmod 360$.
 
 Computed with the spherical formulas above:
 
-| City | Rhumb line bearing | Great circle initial bearing | Rhumb distance | Great circle distance |
-|---|---|---|---|---|
-| Toronto | 103° (ESE) | 55° (NE) | 11,320 km | 10,496 km |
-| London, ON | 102° (ESE) | 53° (NE) | 11,522 km | 10,661 km |
-| Vancouver | 102° (ESE) | 17° (NNE) | 14,808 km | 11,974 km |
-| Santiago | 63° (ENE) | 82° (E) | 13,223 km | 13,149 km |
+| City       | Rhumb line bearing | Great circle initial bearing | Rhumb distance | Great circle distance |
+| ---------- | ------------------ | ---------------------------- | -------------- | --------------------- |
+| Toronto    | 103° (ESE)        | 55° (NE)                    | 11,320 km      | 10,496 km             |
+| London, ON | 102° (ESE)        | 53° (NE)                    | 11,522 km      | 10,661 km             |
+| Vancouver  | 102° (ESE)        | 17° (NNE)                   | 14,808 km      | 11,974 km             |
+| Santiago   | 63° (ENE)         | 82° (E)                     | 13,223 km      | 13,149 km             |
 
 The app uses the [`pygeodesy`](https://github.com/mrJean1/PyGeodesy) library. It
 computes the rhumb line on a sphere and the great circle on the WGS-84 ellipsoid
@@ -117,31 +117,32 @@ computes the rhumb line on a sphere and the great circle on the WGS-84 ellipsoid
 
 ## Running locally
 
+This project uses [uv](https://docs.astral.sh/uv/). With uv installed:
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
+uv run app.py
 ```
 
-Then open http://127.0.0.1:5000, pick a country and a city, and click **Calculate Bearing**.
+uv installs the right Python version (see `.python-version`) and the locked
+dependencies (`uv.lock`) on the first run. Then open http://127.0.0.1:5050, pick a
+country and a city, and click **Calculate Bearing**.
 
 To regenerate the route animations (GIFs):
 
 ```bash
-python spherical_animation.py
+uv run spherical_animation.py
 ```
 
 ## Project layout
 
-| Path | Purpose |
-|---|---|
-| `app.py` | Flask app and the bearing/distance calculations |
-| `templates/index.html`, `static/` | The web page, compasses and slider |
-| `spherical_animation.py` | Generates the 3D route GIFs |
-| `*_route.gif` | Pre-rendered route animations |
-| `worldcities.csv` | Country/city list for the dropdowns |
-| `experiments/` | Early prototypes and notebooks |
+| Path                                  | Purpose                                         |
+| ------------------------------------- | ----------------------------------------------- |
+| `app.py`                            | Flask app and the bearing/distance calculations |
+| `templates/index.html`, `static/` | The web page, compasses and slider              |
+| `spherical_animation.py`            | Generates the 3D route GIFs                     |
+| `*_route.gif`                       | Pre-rendered route animations                   |
+| `worldcities.csv`                   | Country/city list for the dropdowns             |
+| `experiments/`                      | Early prototypes and notebooks                  |
 
 ## Credits
 
