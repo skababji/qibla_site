@@ -332,8 +332,10 @@ button:hover {
 /* Correct / Not correct label under each method's title */
 .verdict {
     display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 4px 8px;
     margin: 0 0 12px;
     padding: 5px 14px 5px 6px;
     border-radius: 999px;
@@ -342,6 +344,46 @@ button:hover {
     font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 0.01em;
+}
+
+.verdict-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.verdict-reason {
+    padding-left: 9px;
+    border-left: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+    font-weight: 500;
+    color: var(--ink);
+    opacity: 0.8;
+}
+
+/* Narrow screens: put the reason on its own line instead of wrapping awkwardly */
+@media (max-width: 480px) {
+    .verdict {
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 2px;
+        padding: 6px 16px 7px;
+        border-radius: 14px;
+    }
+
+    .verdict-main {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .verdict-reason {
+        padding-left: 0;
+        border-left: none;
+        font-size: 0.88rem;
+    }
 }
 
 .verdict-icon {
