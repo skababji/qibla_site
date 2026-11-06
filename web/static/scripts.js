@@ -77,12 +77,29 @@ countrySelect.addEventListener('change', function() {
     });
 });
 
+// The selected country and city, e.g. "canada:1234" (empty when no city is chosen)
+let lastCalculated = '';
+function selectionKey() {
+    return citySelect.value === '' ? '' : `${countrySelect.value}:${citySelect.value}`;
+}
+
 document.getElementById('calculateButton').addEventListener('click', function(event) {
     event.preventDefault();
+    calculate({ scroll: true });
+});
+
+// Once results are showing, keep them in step with the selected city
+citySelect.addEventListener('change', function() {
+    if (lastCalculated && selectionKey()) {
+        calculate({ scroll: false });
+    }
+});
+
+function calculate({ scroll }) {
     const cityIndex = citySelect.value;
     if (cityIndex === '' || !currentCities[cityIndex]) {
         document.getElementById('results').textContent = 'Please select a city.';
-        return;
+        return false;
     }
     const [city, lat, lng] = currentCities[cityIndex];
     const country = countrySelect.options[countrySelect.selectedIndex].text;
@@ -93,8 +110,9 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
     } catch (err) {
         console.error(err);
         document.getElementById('results').textContent = 'Could not calculate the route for this city.';
-        return;
+        return false;
     }
+    lastCalculated = selectionKey();
 
     const initial = Number(data.gc_initial_bearing);
     const final = Number(data.gc_final_bearing);
@@ -143,8 +161,11 @@ document.getElementById('calculateButton').addEventListener('click', function(ev
         startAnimation();
     }
 
-    document.querySelector('.compass-title-container').scrollIntoView({ behavior: 'smooth' });
-});
+    if (scroll) {
+        document.querySelector('.compass-title-container').scrollIntoView({ behavior: 'smooth' });
+    }
+    return true;
+}
 
 // bearing: degrees clockwise from north, or null to draw an empty dial
 function drawCompass(bearing, needleColor) {
@@ -268,14 +289,19 @@ const ANIM_TRAVEL_MS = 9000;
 const ANIM_HOLD_MS = 1800;
 const animState = { data: null, city: '', frame: null, scenes: [] };
 
-document.getElementById('animToggle').addEventListener('change', function() {
+const animToggle = document.getElementById('animToggle');
+animToggle.addEventListener('change', function() {
     document.body.classList.toggle('mode-animation', this.checked);
-    if (this.checked) {
-        startAnimation();
-    } else {
+    if (!this.checked) {
         stopAnimation();
+    } else if (selectionKey() && selectionKey() !== lastCalculated) {
+        calculate({ scroll: false });  // a different city is selected: calculate it (this starts the animation)
+    } else {
+        startAnimation();
     }
 });
+// Browsers can restore a checkbox after reload; keep the page in step with it
+document.body.classList.toggle('mode-animation', animToggle.checked);
 
 function toRad(d) { return d * Math.PI / 180; }
 function toDeg(r) { return r * 180 / Math.PI; }
