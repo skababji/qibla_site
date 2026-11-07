@@ -22,6 +22,8 @@ ROOT = Path(__file__).resolve().parent
 WEB = ROOT / 'web'
 OUT = ROOT / '_site'
 CITIES_CSV = ROOT / 'worldcities.csv'
+# Countries left out of the site entirely (both pages), by ISO code
+EXCLUDED_COUNTRIES = {'IL'}
 ARABIC_NAMES_CSV = ROOT / 'arabic_names.csv'   # made by tools/arabic_names.py
 
 
@@ -65,6 +67,8 @@ def build_data(out_dir):
     with CITIES_CSV.open(encoding='utf-8', newline='') as f:
         by_country = defaultdict(list)
         for row in csv.DictReader(f):
+            if row['iso2'] in EXCLUDED_COUNTRIES:
+                continue
             # Arabic page: Arabic names where known, otherwise the English ones
             city_ar, admin_ar = arabic.get(row['id'], ('', ''))
             row['has_ar'] = bool(city_ar)
