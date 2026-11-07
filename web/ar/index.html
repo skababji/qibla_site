@@ -17,6 +17,11 @@
     <div class="container">
         <div class="content">
             <h1>القبلة في أمريكا الشمالية</h1>
+            <p class="debates-nav">مناظرات افتراضية لتوضيح الفكرة:
+                <a href="#debate-1" data-dialog="debate-1">المناظرة الأولى</a>
+                <a href="#debate-2" data-dialog="debate-2">المناظرة الثانية</a>
+                <a href="#debate-3" data-dialog="debate-3">المناظرة الثالثة</a>
+            </p>
             <div class="text-content">
                 <p>ينبغي أن يكون اتجاه القبلة في أمريكا الشمالية نحو الشرق/الجنوب الشرقي، لا نحو الشمال الشرقي كما هو شائع وكما اعتمدته خطأً الغالبية العظمى من المساجد اليوم. وليس ذلك نابعاً عن اعتقادٍ أن الأرض مسطّحة أو عن إهمالٍ العلمية بل لأن أيّ حساباتٍ يجب أن تتوافق مع المقاصد ومع <em>الوسائل</em> كما حدّدتها الشريعة.</p>
 
@@ -92,6 +97,43 @@
         </div>
         <input type="range" id="bearingSlider" min="-360" max="360" value="0" aria-label="الموقع على مسار الدائرة العظمى">
     </div>
+
+    <!-- Assumed debates, opened as pop-ups from links with data-dialog -->
+    <dialog class="popup" id="debate-1" aria-labelledby="debate-1-title">
+        <div class="popup-body">
+            <button type="button" class="popup-close" data-close aria-label="إغلاق">×</button>
+            <h2 id="debate-1-title" tabindex="-1" autofocus>المناظرة الأولى</h2>
+            <p>نقول لهم هل يمكن معرفة القبلة عندكم دون معرفة شكل الأرض وقطرها؟</p>
+            <p class="debate-branch">إن قالوا نعم، قلنا أخبرونا كيف تتوصلون إلى معرفة القبلة وأنها إلى الشمال الشرقي دون معرفة شكل الأرض وقطرها.</p>
+            <p class="debate-branch">وإن قالوا لا يمكن، قلنا فهل ثبت عن الشارع أنه بين لنا شكل الأرض ولا سيما قطرها؟</p>
+            <p class="debate-branch">فإن قالوا نعم، قلنا أخبرونا أين ثبت؟</p>
+            <p class="debate-branch">وإن قالوا لم يثبت عن الشارع في ذلك شيء، قلنا أخبرونا إذن كيف يكلفنا الشارع بمعرفة القبلة ولا يبين لنا شكل الأرض وقطرها مع أن معرفة القبلة عندكم تفتقر إلى ذلك البيان؟</p>
+            <p>فهل يُعقل مثلاً أن يكلفنا الشارع بإخراج الزكاة بقدر مخصوص ثم لا يبين لنا ذلك القدر؟</p>
+        </div>
+    </dialog>
+
+    <dialog class="popup" id="debate-2" aria-labelledby="debate-2-title">
+        <div class="popup-body">
+            <button type="button" class="popup-close" data-close aria-label="إغلاق">×</button>
+            <h2 id="debate-2-title" tabindex="-1" autofocus>المناظرة الثانية</h2>
+            <p>نقول لهم: قبل اكتشاف كروية الأرض وتحديد قطرها بدقة، هل أقام الصحابة ومن بعدهم المحاريب اعتماداً على هذه القياسات الدقيقة؟</p>
+            <p class="debate-branch">فإن قالوا نعم، قلنا فهلّا أخبرتمونا أين ثبتت هذه الحسابات عنهم؟</p>
+            <p class="debate-branch">فإن قالوا لم يُقم الصحابة المحاريب بناء على معرفة شكل الأرض وقطرها ولكن العلم تطور ويمكننا الآن معرفة القبلة بشكل أدق.</p>
+            <p>قلنا لهم: قولكم هذا يقتضي أن المحاريب القديمة تشتمل على خطأ ولو قليلاً بناء على الحسابات الجديدة، فهل يمتنع المقلد الشافعي الذي يريد عين الكعبة عن الصلاة في تلك المساجد القديمة ويقضي ببطلان الصلاة فيها لأنه يجزم بحصول الخطأ بناء على الحسابات الجديدة؟ أم يصلي في مساجد الصحابة والتابعين مع جزمه بأنها تنحرف عن عين الكعبة بناء على الحسابات الحديثة؟</p>
+        </div>
+    </dialog>
+
+    <dialog class="popup" id="debate-3" aria-labelledby="debate-3-title">
+        <div class="popup-body">
+            <button type="button" class="popup-close" data-close aria-label="إغلاق">×</button>
+            <h2 id="debate-3-title" tabindex="-1" autofocus>المناظرة الثالثة</h2>
+            <p>نقول لهم: هل الجهات الأربعة (شمال جنوب شرق غرب) معتبرة عندكم في معرفة القبلة؟</p>
+            <p class="debate-branch">فإن قالوا ليست معتبرة، قلنا فلماذا أحال عليها الشارع في قوله ما بين المشرق والمغرب قبلة؟</p>
+            <p class="debate-branch">فإن قالوا هي معتبرة، قلنا فهل معرفة هذه الجهات تابعة لمعرفة شكل الأرض أم لأمر خارج عن الأرض كالشمس والنجم مثلاً؟</p>
+            <p class="debate-branch">فإن قالوا هذا راجع إلى معرفة شكل الأرض، قلنا فهلا بينتم من ذكر ذلك من اللغويين في مدلول هذه الجهات؟</p>
+            <p class="debate-branch">وإن قالوا هو راجع إلى أمر خارج عن الأرض، قلنا أفلا يقتضي ذلك إسقاط شكل الأرض و قطرها جملة في معرفة جهة الكعبة؟</p>
+        </div>
+    </dialog>
 
     <script src="../static/vendor/geographiclib-geodesic.min.js"></script>
     <script src="../static/qibla.js"></script>

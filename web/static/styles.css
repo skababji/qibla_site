@@ -761,3 +761,110 @@ body:lang(ar) {
 [dir="rtl"] .results-content h3 {
     letter-spacing: 0;
 }
+
+/* ---------- Debates links and pop-up windows ---------- */
+.debates-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 10px;
+    max-width: 68ch;
+    margin: -4px auto 24px;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.debates-nav a {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--rhumb-soft);
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.debates-nav a:hover {
+    background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+    text-decoration: none;
+}
+
+dialog.popup {
+    width: min(640px, calc(100% - 32px));
+    max-height: min(85vh, 760px);
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+dialog.popup::backdrop {
+    background: rgba(15, 20, 20, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+body:has(dialog.popup[open]) {
+    overflow: hidden;
+}
+
+.popup-body {
+    position: relative;
+    max-height: inherit;
+    overflow-y: auto;
+    padding: 28px 32px 24px;
+    line-height: 1.9;
+}
+
+.popup-body h2:focus {
+    outline: none;
+}
+
+.popup-body h2 {
+    margin: 0 0 18px;
+    padding-inline-end: 36px;
+    color: var(--accent);
+    font-size: 1.35rem;
+}
+
+.popup-body p {
+    margin: 0 0 14px;
+    color: var(--ink);
+}
+
+.popup-body p:first-of-type {
+    font-weight: 600;
+}
+
+.popup-body .debate-branch {
+    padding-inline-start: 14px;
+    border-inline-start: 3px solid var(--line-strong);
+    color: var(--muted);
+}
+
+.popup-close {
+    position: absolute;
+    top: 16px;
+    inset-inline-end: 16px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--ink);
+    font-size: 1.4rem;
+    line-height: 1;
+    border: 1px solid var(--line);
+}
+
+.popup-close:hover {
+    background: var(--line);
+}
+
+@media (max-width: 860px) {
+    .popup-body {
+        padding: 24px 20px 20px;
+    }
+}

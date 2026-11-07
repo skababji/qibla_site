@@ -666,3 +666,44 @@ function stopAnimation() {
         animState.frame = null;
     }
 }
+
+/* ---------- Pop-up windows ----------
+ * A link with data-dialog="id" opens <dialog id="id"> as a pop-up. Clicking outside
+ * the window, the × button or Esc closes it. Opening page#id opens it directly.
+ */
+document.querySelectorAll('dialog.popup').forEach(dialog => {
+    // Clicks on the dimmed backdrop land on the <dialog> itself, not on its content
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+    });
+    dialog.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => dialog.close()));
+    dialog.addEventListener('close', () => {
+        if (location.hash === '#' + dialog.id) {
+            history.replaceState(null, '', location.pathname + location.search);
+        }
+    });
+});
+
+function openPopup(id) {
+    const dialog = document.getElementById(id);
+    if (!dialog || dialog.open || typeof dialog.showModal !== 'function') return false;
+    document.querySelectorAll('dialog.popup[open]').forEach(d => d.close());
+    dialog.showModal();
+    dialog.querySelector('.popup-body').scrollTop = 0;
+    history.replaceState(null, '', '#' + id);
+    return true;
+}
+
+document.querySelectorAll('[data-dialog]').forEach(link => {
+    link.addEventListener('click', (event) => {
+        if (openPopup(link.dataset.dialog)) event.preventDefault();
+    });
+});
+
+function openPopupFromHash() {
+    if (location.hash.length < 2) return;
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target && target.matches('dialog.popup')) openPopup(target.id);
+}
+openPopupFromHash();
+window.addEventListener('hashchange', openPopupFromHash);
