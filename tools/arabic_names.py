@@ -31,6 +31,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_KM = 25
+# worldcities.csv codes that GeoNames files under another code
+COUNTRY_ALIASES = {'XG': 'PS', 'XW': 'PS', 'XR': 'SJ'}  # Gaza Strip, West Bank, Svalbard
+# Hand corrections, by worldcities.csv id: (Arabic city name, Arabic state/province name)
+MANUAL_NAMES = {
+    '1934000006': ('القدس', ''),   # Al Quds (West Bank); not matched automatically
+}
 ARABIC = re.compile(r'[؀-ۿ]')
 LATIN = re.compile(r'[A-Za-z]')
 # Letters used in Persian/Urdu but not in Arabic: skip names written with them
@@ -77,7 +83,7 @@ def best_match(by_cell, row):
     lat, lon = float(row['lat']), float(row['lng'])
     wanted = {norm(row['city']), norm(row['city_ascii'])}
     best = None
-    for place in candidates(by_cell, row['iso2'], lat, lon):
+    for place in candidates(by_cell, COUNTRY_ALIASES.get(row['iso2'], row['iso2']), lat, lon):
         dist = km(lat, lon, place['lat'], place['lon'])
         if dist > MAX_KM:
             continue
@@ -183,15 +189,17 @@ def main(geonames_dir, use_wikidata=False):
         writer.writerow(['id', 'city', 'admin_name', 'country', 'city_ar', 'admin_ar', 'geonameid'])
         for row in rows:
             place = matches[row['id']]
-            if not place:
+            if not place and row['id'] not in MANUAL_NAMES:
                 continue
-            city_ar = arabic.get(place['id'], '')
-            admin_ar = arabic.get(admin1_ids.get(f"{place['cc']}.{place['admin1']}", ''), '')
+            city_ar = arabic.get(place['id'], '') if place else ''
+            admin_ar = arabic.get(admin1_ids.get(f"{place['cc']}.{place['admin1']}", ''), '') if place else ''
+            if row['id'] in MANUAL_NAMES:
+                city_ar, admin_ar = MANUAL_NAMES[row['id']]
             if city_ar:
                 named += 1
             if city_ar or admin_ar:
                 writer.writerow([row['id'], row['city'], row['admin_name'], row['country'],
-                                 city_ar, admin_ar, place['id']])
+                                 city_ar, admin_ar, place['id'] if place else ''])
     matched = sum(1 for p in matches.values() if p)
     print(f'{len(rows):,} cities | matched to GeoNames: {matched:,} | with an Arabic name: {named:,} '
           f'({named / len(rows):.0%}) -> {out.relative_to(ROOT)}')

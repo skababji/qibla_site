@@ -116,10 +116,18 @@ fetch(new URL('data/countries.json', SITE_ROOT))
         if (LANG !== 'en' && typeof Intl !== 'undefined' && Intl.DisplayNames) {
             try { names = new Intl.DisplayNames([LANG], { type: 'region' }); } catch (e) { names = null; }
         }
+        // Codes the browser has no Arabic name for
+        const OVERRIDES = { ar: { XG: 'قطاع غزة', XW: 'الضفة الغربية', XR: 'سفالبارد' } };
         const display = ([name, , code]) => {
-            try { return (names && code && names.of(code)) || name; } catch (e) { return name; }
+            const fixed = (OVERRIDES[LANG] || {})[code];
+            if (fixed) return fixed;
+            try {
+                const local = names && code && names.of(code);
+                return local && local !== code ? local : name;
+            } catch (e) { return name; }
         };
         countries
+            .filter(c => LANG !== 'ar' || c[3] > 0)   // Arabic page: only countries with Arabic city names
             .map(c => [display(c), c[1]])
             .sort((x, y) => LANG === 'en' ? 0 : x[0].localeCompare(y[0], LANG))
             .forEach(([name, file]) => countrySelect.add(new Option(name, file)));
@@ -152,7 +160,8 @@ countrySelect.addEventListener('change', function() {
         citySelect.innerHTML = `<option value="">${T.selectCity}</option>`;
         // City entries are [English label, lat, lng, Arabic label (if known)]
         cities
-            .map((c, index) => [cityLabel(c), index])
+            .map((c, index) => [cityLabel(c), index, c])
+            .filter(([, , c]) => LANG !== 'ar' || c[3])   // Arabic page: only cities with Arabic names
             .sort((x, y) => LANG === 'en' ? 0 : x[0].localeCompare(y[0], LANG))
             .forEach(([label, index]) => citySelect.add(new Option(label, index)));
         citySelect.style.display = 'block';

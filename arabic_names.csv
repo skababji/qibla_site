@@ -549,11 +549,13 @@ id,city,admin_name,country,city_ar,admin_ar,geonameid
 1234904517,Tórshavn,,Faroe Islands,توشهافن,,2611396
 1016976740,Pago Pago,,American Samoa,باغو باغو,,5881576
 1470574399,Valletta,Valletta,Malta,فاليتا,,2562305
+1916116052,Gaza,,Gaza Strip,غزة,قطاع غزة,281133
 1583008885,Palikir,Pohnpei,Federated States of Micronesia,,ولاية بوهنبي,2081986
 1748963140,Lobamba,Hhohho,Swaziland,لوبامبا,إقليم هوهو,935048
 1184217570,Avarua,,Cook Islands,آواروآ,,4035715
 1308891766,Saint George’s,Saint George,Grenada,,أبرشية القديس جورج,3579925
 1674741947,San Marino,San Marino Città,San Marino,سان مارينو المدينة,,3168070
+1934000006,Al Quds,,West Bank,القدس,,
 1238780509,Stanley,,Falkland Islands (Islas Malvinas),ستانلي,,3426691
 1312938008,Basse-Terre,,Guadeloupe,باس-تير,,3579732
 1316937540,Hagåtña,,Guam,هاغاتنيا,,4044012
@@ -564,6 +566,7 @@ id,city,admin_name,country,city_ar,admin_ar,geonameid
 1092732412,Road Town,,British Virgin Islands,رود تاون,,3577430
 1585525081,Ngerulmud,Melekeok,Palau,,ولاية ميلكيوك,8063361
 1574121434,Kingston,,Norfolk Island,كينغستون,,2161314
+1930654114,Longyearbyen,,Svalbard,لونقييربين,سفالبارد,2729907
 1612000000,Adamstown,,Pitcairn Islands,آدمزتاون,,4030723
 1162889600,Flying Fish Cove,,Christmas Island,فلاينغ فيش كوف,,2078127
 1356698199,Bareilly,Uttar Pradesh,India,,أتر برديش,1277013

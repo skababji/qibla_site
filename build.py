@@ -67,6 +67,7 @@ def build_data(out_dir):
         for row in csv.DictReader(f):
             # Arabic page: Arabic names where known, otherwise the English ones
             city_ar, admin_ar = arabic.get(row['id'], ('', ''))
+            row['has_ar'] = bool(city_ar)
             row['city_ar'] = city_ar or row['city']
             row['admin_ar'] = admin_ar or row['admin_name']
             by_country[row['country']].append(row)
@@ -84,14 +85,15 @@ def build_data(out_dir):
         labels_en = city_labels(rows)
         labels_ar = city_labels(rows, 'city_ar', 'admin_ar', '، ')
         cities = sorted(
-            # [English label, lat, lng] plus the Arabic label when it differs
-            ([en, float(r['lat']), float(r['lng'])] + ([ar] if ar != en else [])
+            # [English label, lat, lng] plus the Arabic label for cities with an Arabic name
+            ([en, float(r['lat']), float(r['lng'])] + ([ar] if r['has_ar'] else [])
              for en, ar, r in zip(labels_en, labels_ar, rows)),
             key=lambda c: c[0].casefold(),
         )
         with (out_dir / 'cities' / f'{slug}.json').open('w', encoding='utf-8') as f:
             json.dump(cities, f, ensure_ascii=False, separators=(',', ':'))
-        countries.append([country, slug, rows[0]['iso2']])
+        # [name, file, ISO code, number of cities with an Arabic name]
+        countries.append([country, slug, rows[0]['iso2'], sum(r['has_ar'] for r in rows)])
 
     with (out_dir / 'countries.json').open('w', encoding='utf-8') as f:
         json.dump(countries, f, ensure_ascii=False, separators=(',', ':'))
