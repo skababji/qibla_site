@@ -734,9 +734,10 @@ body:lang(ar) {
     line-height: 1.9;
 }
 
-.signature-ar {
+#signature.signature-ar {
     font-family: "Amiri", "Geeza Pro", serif;
-    font-size: 0.95em;
+    font-size: 23px;
+    line-height: 1.7;
 }
 
 [dir="rtl"] select {
