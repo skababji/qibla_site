@@ -834,8 +834,13 @@ body:has(dialog.popup[open]) {
     color: var(--ink);
 }
 
-.popup-body p:first-of-type {
+.popup-debate .popup-body p:first-of-type {
     font-weight: 600;
+}
+
+/* Articles are longer: a little wider */
+dialog.popup-article {
+    width: min(760px, calc(100% - 32px));
 }
 
 .popup-body .debate-branch {
