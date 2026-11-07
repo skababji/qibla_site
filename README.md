@@ -106,7 +106,7 @@ y = \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda
 The distance (haversine formula):
 
 ```math
-a = \sin^2\!\left(\frac{\Delta\varphi}{2}\right) + \cos\varphi_1\cos\varphi_2\sin^2\!\left(\frac{\Delta\lambda}{2}\right)
+\begin{aligned} a = {} & \sin^2\!\left(\frac{\Delta\varphi}{2}\right) \\ & + \cos\varphi_1\cos\varphi_2\sin^2\!\left(\frac{\Delta\lambda}{2}\right) \end{aligned}
 ```
 
 ```math
