@@ -128,6 +128,10 @@ fetch(new URL('data/countries.json', SITE_ROOT))
         document.getElementById('results').textContent = T.loadCountriesFailed;
     });
 
+function cityLabel(c) {
+    return LANG === 'ar' && c[3] ? c[3] : c[0];
+}
+
 function loadCities(file) {
     if (!cityCache[file]) {
         cityCache[file] = fetch(new URL(`data/cities/${file}.json`, SITE_ROOT)).then(response => response.json());
@@ -146,7 +150,11 @@ countrySelect.addEventListener('change', function() {
         if (countrySelect.value !== file) return;  // another country was picked meanwhile
         currentCities = cities;
         citySelect.innerHTML = `<option value="">${T.selectCity}</option>`;
-        cities.forEach(([label], index) => citySelect.add(new Option(label, index)));
+        // City entries are [English label, lat, lng, Arabic label (if known)]
+        cities
+            .map((c, index) => [cityLabel(c), index])
+            .sort((x, y) => LANG === 'en' ? 0 : x[0].localeCompare(y[0], LANG))
+            .forEach(([label, index]) => citySelect.add(new Option(label, index)));
         citySelect.style.display = 'block';
         document.getElementById('calculateButton').style.display = 'block';
     }).catch(() => {
@@ -179,7 +187,8 @@ function calculate({ scroll }) {
         document.getElementById('results').textContent = T.pleaseSelectCity;
         return false;
     }
-    const [city, lat, lng] = currentCities[cityIndex];
+    const [, lat, lng] = currentCities[cityIndex];
+    const city = cityLabel(currentCities[cityIndex]);
     const country = countrySelect.options[countrySelect.selectedIndex].text;
 
     let data;
@@ -233,7 +242,7 @@ function calculate({ scroll }) {
 
     // Route animation (shown instead of the compasses when the switch is on)
     animState.data = data;
-    animState.city = city.split(',')[0];
+    animState.city = city.split(/[,،]/)[0].trim();
     const animOn = document.getElementById('animToggle').checked;
     document.body.classList.toggle('mode-animation', animOn);
     if (animOn) {

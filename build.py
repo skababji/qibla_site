@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent
 WEB = ROOT / 'web'
 OUT = ROOT / '_site'
 CITIES_CSV = ROOT / 'worldcities.csv'
+ARABIC_NAMES_CSV = ROOT / 'arabic_names.csv'   # made by tools/arabic_names.py
 
 
 def slugify(name):
@@ -29,19 +30,20 @@ def slugify(name):
     return re.sub(r'[^a-z0-9]+', '-', ascii_name.lower()).strip('-') or 'country'
 
 
-def city_labels(rows):
+def city_labels(rows, city_key='city', admin_key='admin_name', sep=', '):
     """Give each city a dropdown label that is unique within its country.
 
     A name used once in a country is shown as is ("Toronto"). A repeated name gets its
     state or province ("Springfield, Missouri"), and if that is still not unique, its
     coordinates too ("Springfield, Pennsylvania (39.93, -75.34)").
     """
-    name_count = Counter(r['city'] for r in rows)
+    name_count = Counter(r[city_key] for r in rows)
+    english_count = Counter(r['city'] for r in rows)  # keep Arabic labels as specific as English ones
     labels = []
     for r in rows:
-        label = r['city']
-        if name_count[label] > 1 and r['admin_name']:
-            label = f"{label}, {r['admin_name']}"
+        label = r[city_key]
+        if (name_count[label] > 1 or english_count[r['city']] > 1) and r[admin_key]:
+            label = f"{label}{sep}{r[admin_key]}"
         labels.append(label)
     label_count = Counter(labels)
     return [
@@ -50,10 +52,23 @@ def city_labels(rows):
     ]
 
 
+def load_arabic_names():
+    """city id -> (Arabic city name, Arabic state/province name), either may be ''."""
+    if not ARABIC_NAMES_CSV.exists():
+        return {}
+    with ARABIC_NAMES_CSV.open(encoding='utf-8', newline='') as f:
+        return {r['id']: (r['city_ar'], r['admin_ar']) for r in csv.DictReader(f)}
+
+
 def build_data(out_dir):
+    arabic = load_arabic_names()
     with CITIES_CSV.open(encoding='utf-8', newline='') as f:
         by_country = defaultdict(list)
         for row in csv.DictReader(f):
+            # Arabic page: Arabic names where known, otherwise the English ones
+            city_ar, admin_ar = arabic.get(row['id'], ('', ''))
+            row['city_ar'] = city_ar or row['city']
+            row['admin_ar'] = admin_ar or row['admin_name']
             by_country[row['country']].append(row)
 
     countries, used_slugs = [], set()
@@ -66,8 +81,12 @@ def build_data(out_dir):
             slug, n = f'{base}-{n}', n + 1
         used_slugs.add(slug)
 
+        labels_en = city_labels(rows)
+        labels_ar = city_labels(rows, 'city_ar', 'admin_ar', '، ')
         cities = sorted(
-            ([label, float(r['lat']), float(r['lng'])] for label, r in zip(city_labels(rows), rows)),
+            # [English label, lat, lng] plus the Arabic label when it differs
+            ([en, float(r['lat']), float(r['lng'])] + ([ar] if ar != en else [])
+             for en, ar, r in zip(labels_en, labels_ar, rows)),
             key=lambda c: c[0].casefold(),
         )
         with (out_dir / 'cities' / f'{slug}.json').open('w', encoding='utf-8') as f:

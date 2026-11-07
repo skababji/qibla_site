@@ -147,6 +147,8 @@ Every push to `main` rebuilds and publishes the site to GitHub Pages automatical
 | `web/static/qibla.js`               | Rhumb line and great circle calculations        |
 | `build.py`                          | Builds the static site into `_site/`            |
 | `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |
+| `arabic_names.csv`                  | Arabic names for those cities (internal mapping, by city id) |
+| `tools/arabic_names.py`             | Regenerates `arabic_names.csv` from GeoNames    |
 | `.github/workflows/pages.yml`       | Publishes the site to GitHub Pages              |
 | `docs/screenshot.png`               | Screenshot used in this README                  |
 
@@ -155,6 +157,9 @@ Every push to `main` rebuilds and publishes the site to GitHub Pages automatical
 - City data: [SimpleMaps World Cities Database](https://simplemaps.com/data/world-cities)
   (Basic version), licensed under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Arabic city names: [GeoNames](https://www.geonames.org/), licensed under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Cities without an Arabic name
+  in GeoNames are shown in English.
 - Geodesy: [GeographicLib](https://geographiclib.sourceforge.io/) by Charles Karney
   (MIT License), included in `web/static/vendor/`.
 
