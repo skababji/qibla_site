@@ -75,8 +75,12 @@ shorter way around in longitude.
 The distance along the rhumb line:
 
 ```math
-q = \begin{cases} \dfrac{\Delta\varphi}{\Delta\psi} & \text{if } \Delta\psi \neq 0 \\[2mm] \cos\varphi_1 & \text{if } \Delta\psi = 0 \text{ (due east/west)} \end{cases}
-\qquad
+q = \begin{cases} \dfrac{\Delta\varphi}{\Delta\psi} & \text{if } \Delta\psi \neq 0 \\[2mm] \cos\varphi_1 & \text{if } \Delta\psi = 0 \end{cases}
+```
+
+The second case is a route running due east or west. Then:
+
+```math
 d_{\text{rhumb}} = R\sqrt{\Delta\varphi^2 + q^2\,\Delta\lambda^2}
 ```
 
@@ -88,14 +92,24 @@ it for centuries.
 The **initial bearing**, valid only at the starting point:
 
 ```math
-\theta_{\text{gc}} = \mathrm{atan2}\left(\sin\Delta\lambda\cos\varphi_2,\ \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda\right)
+x = \sin\Delta\lambda\,\cos\varphi_2
+```
+
+```math
+y = \cos\varphi_1\sin\varphi_2 - \sin\varphi_1\cos\varphi_2\cos\Delta\lambda
+```
+
+```math
+\theta_{\text{gc}} = \mathrm{atan2}\left(x,\ y\right)
 ```
 
 The distance (haversine formula):
 
 ```math
 a = \sin^2\!\left(\frac{\Delta\varphi}{2}\right) + \cos\varphi_1\cos\varphi_2\sin^2\!\left(\frac{\Delta\lambda}{2}\right)
-\qquad
+```
+
+```math
 d_{\text{gc}} = 2R\,\mathrm{atan2}\left(\sqrt{a},\ \sqrt{1-a}\right)
 ```
 
