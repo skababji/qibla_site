@@ -72,7 +72,7 @@ def build_data(out_dir):
         )
         with (out_dir / 'cities' / f'{slug}.json').open('w', encoding='utf-8') as f:
             json.dump(cities, f, ensure_ascii=False, separators=(',', ':'))
-        countries.append([country, slug])
+        countries.append([country, slug, rows[0]['iso2']])
 
     with (out_dir / 'countries.json').open('w', encoding='utf-8') as f:
         json.dump(countries, f, ensure_ascii=False, separators=(',', ':'))
@@ -80,19 +80,17 @@ def build_data(out_dir):
 
 
 def add_cache_busting(html_path):
-    """static/x.js -> static/x.js?v=<hash of the file>"""
-    site = html_path.parent
-
+    """static/x.js (or ../static/x.js) -> same path + ?v=<hash of the file>"""
     def versioned(match):
         path = match.group(1)
-        file = site / path
+        file = (html_path.parent / path).resolve()
         if not file.is_file():
             return match.group(0)
         digest = hashlib.sha256(file.read_bytes()).hexdigest()[:10]
         return f'"{path}?v={digest}"'
 
     html = html_path.read_text(encoding='utf-8')
-    html_path.write_text(re.sub(r'"(static/[^"?]+)"', versioned, html), encoding='utf-8')
+    html_path.write_text(re.sub(r'"((?:\.\./)*static/[^"?]+)"', versioned, html), encoding='utf-8')
 
 
 def build():
@@ -100,7 +98,8 @@ def build():
         shutil.rmtree(OUT)
     shutil.copytree(WEB, OUT)
     countries, cities = build_data(OUT / 'data')
-    add_cache_busting(OUT / 'index.html')
+    for page in OUT.rglob('*.html'):
+        add_cache_busting(page)
     (OUT / '.nojekyll').touch()
     print(f'Built {OUT.relative_to(ROOT)}/ with {cities:,} cities in {countries} countries')
 

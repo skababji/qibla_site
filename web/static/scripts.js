@@ -1,22 +1,90 @@
 const COMPASS_SIZE = 350; // logical size in CSS pixels
 
+/* ---------- Page language ----------
+ * The same script serves the English page and the Arabic page (lang="ar").
+ * Numbers always use English digits on both pages.
+ */
+const LANG = document.documentElement.lang.toLowerCase().startsWith('ar') ? 'ar' : 'en';
+const STRINGS = {
+    en: {
+        directions: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+                     'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
+        dial: { N: 'N', E: 'E', S: 'S', W: 'W', NE: 'NE', SE: 'SE', SW: 'SW', NW: 'NW' },
+        km: 'km',
+        bearingAngle: 'Bearing angle', distance: 'Distance',
+        initialBearing: 'Initial bearing', finalBearing: 'Final bearing',
+        selectCity: 'Select your city',
+        coords: 'Your city coordinates: ',
+        loadCountriesFailed: 'Could not load the list of countries.',
+        loadCitiesFailed: 'Could not load the list of cities.',
+        pleaseSelectCity: 'Please select a city.',
+        calcFailed: 'Could not calculate the route for this city.',
+        selectForAnimation: 'Select a country and city to see the animation.',
+        compass: 'Compass',
+        compassPointing: (b) => `Compass pointing ${b} degrees`,
+        northPole: 'North Pole', makkah: 'Makkah',
+        rhumbName: 'rhumb line', gcName: 'great circle',
+        animLabel: (name, city) => `Animation of the ${name} route from ${city} to Makkah`,
+        readout: (b, dir, km) => `Bearing ${b}° ${dir} · ${km} km to go`,
+        arrived: (b, dir) => `Arrived · final bearing ${b}° ${dir}`,
+        animError: 'Animation error: ',
+        place: (city, country) => `${city}, ${country}`,
+    },
+    ar: {
+        directions: ['شمال', 'شمال الشمال الشرقي', 'شمال شرق', 'شرق الشمال الشرقي',
+                     'شرق', 'شرق الجنوب الشرقي', 'جنوب شرق', 'جنوب الجنوب الشرقي',
+                     'جنوب', 'جنوب الجنوب الغربي', 'جنوب غرب', 'غرب الجنوب الغربي',
+                     'غرب', 'غرب الشمال الغربي', 'شمال غرب', 'شمال الشمال الغربي'],
+        dial: { N: 'ش', E: 'ق', S: 'ج', W: 'غ', NE: 'ش ق', SE: 'ج ق', SW: 'ج غ', NW: 'ش غ' },
+        km: 'كم',
+        bearingAngle: 'زاوية الاتجاه', distance: 'المسافة',
+        initialBearing: 'الاتجاه الابتدائي', finalBearing: 'الاتجاه النهائي',
+        selectCity: 'اختر مدينتك',
+        coords: 'إحداثيات مدينتك: ',
+        loadCountriesFailed: 'تعذّر تحميل قائمة البلدان.',
+        loadCitiesFailed: 'تعذّر تحميل قائمة المدن.',
+        pleaseSelectCity: 'يُرجى اختيار مدينة.',
+        calcFailed: 'تعذّر حساب المسار لهذه المدينة.',
+        selectForAnimation: 'اختر البلد والمدينة لمشاهدة حركة المسار.',
+        compass: 'بوصلة',
+        compassPointing: (b) => `بوصلة تشير إلى ${b} درجة`,
+        northPole: 'القطب الشمالي', makkah: 'مكة المكرمة',
+        rhumbName: 'خط الاتجاه الثابت', gcName: 'الدائرة العظمى',
+        animLabel: (name, city) => `حركة مسار ${name} من ${city} إلى مكة المكرمة`,
+        readout: (b, dir, km) => `الاتجاه ${ltr(b + '°')} ${dir} · المتبقي ${ltr(km)} كم`,
+        arrived: (b, dir) => `تم الوصول · الاتجاه النهائي ${ltr(b + '°')} ${dir}`,
+        animError: 'خطأ في الحركة: ',
+        place: (city, country) => `${city}، ${country}`,
+    },
+};
+const T = STRINGS[LANG];
+
+// Data files sit next to static/, wherever the page itself is
+const SITE_ROOT = new URL('..', document.currentScript.src);
+
+// Keep numbers like 103° or -79.37 reading left to right inside Arabic text
+const ltr = (text) => `\u2066${text}\u2069`;
+
+// Always English digits with thousands separators, e.g. 11,314
+function formatNumber(n) {
+    return Math.round(Number(n)).toLocaleString('en-US');
+}
+
 function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function bearingToDirection(bearing) {
-    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                        'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-    return directions[Math.floor(((bearing % 360) + 360 + 11.25) / 22.5) % 16];
+    return T.directions[Math.floor(((bearing % 360) + 360 + 11.25) / 22.5) % 16];
 }
 
 function formatBearing(value) {
     const b = Math.round(Number(value));
-    return `${b}° <small>${bearingToDirection(b)}</small>`;
+    return `<bdi dir="ltr">${b}°</bdi> <small>${bearingToDirection(b)}</small>`;
 }
 
 function formatDistance(value) {
-    return `${Math.round(Number(value)).toLocaleString()} km`;
+    return `${formatNumber(value)} ${T.km}`;
 }
 
 function statsHtml(rows) {
@@ -41,18 +109,28 @@ const citySelect = document.getElementById('citySelect');
 const cityCache = {};   // country file name -> [[label, lat, lng], ...]
 let currentCities = [];
 
-fetch('data/countries.json')
+fetch(new URL('data/countries.json', SITE_ROOT))
     .then(response => response.json())
     .then(countries => {
-        countries.forEach(([name, file]) => countrySelect.add(new Option(name, file)));
+        let names = null;
+        if (LANG !== 'en' && typeof Intl !== 'undefined' && Intl.DisplayNames) {
+            try { names = new Intl.DisplayNames([LANG], { type: 'region' }); } catch (e) { names = null; }
+        }
+        const display = ([name, , code]) => {
+            try { return (names && code && names.of(code)) || name; } catch (e) { return name; }
+        };
+        countries
+            .map(c => [display(c), c[1]])
+            .sort((x, y) => LANG === 'en' ? 0 : x[0].localeCompare(y[0], LANG))
+            .forEach(([name, file]) => countrySelect.add(new Option(name, file)));
     })
     .catch(() => {
-        document.getElementById('results').textContent = 'Could not load the list of countries.';
+        document.getElementById('results').textContent = T.loadCountriesFailed;
     });
 
 function loadCities(file) {
     if (!cityCache[file]) {
-        cityCache[file] = fetch(`data/cities/${file}.json`).then(response => response.json());
+        cityCache[file] = fetch(new URL(`data/cities/${file}.json`, SITE_ROOT)).then(response => response.json());
     }
     return cityCache[file];
 }
@@ -67,13 +145,13 @@ countrySelect.addEventListener('change', function() {
     loadCities(file).then(cities => {
         if (countrySelect.value !== file) return;  // another country was picked meanwhile
         currentCities = cities;
-        citySelect.innerHTML = '<option value="">Select your city</option>';
+        citySelect.innerHTML = `<option value="">${T.selectCity}</option>`;
         cities.forEach(([label], index) => citySelect.add(new Option(label, index)));
         citySelect.style.display = 'block';
         document.getElementById('calculateButton').style.display = 'block';
     }).catch(() => {
         delete cityCache[file];
-        document.getElementById('results').textContent = 'Could not load the list of cities.';
+        document.getElementById('results').textContent = T.loadCitiesFailed;
     });
 });
 
@@ -98,7 +176,7 @@ citySelect.addEventListener('change', function() {
 function calculate({ scroll }) {
     const cityIndex = citySelect.value;
     if (cityIndex === '' || !currentCities[cityIndex]) {
-        document.getElementById('results').textContent = 'Please select a city.';
+        document.getElementById('results').textContent = T.pleaseSelectCity;
         return false;
     }
     const [city, lat, lng] = currentCities[cityIndex];
@@ -109,7 +187,7 @@ function calculate({ scroll }) {
         data = qibla.compute(lat, lng);
     } catch (err) {
         console.error(err);
-        document.getElementById('results').textContent = 'Could not calculate the route for this city.';
+        document.getElementById('results').textContent = T.calcFailed;
         return false;
     }
     lastCalculated = selectionKey();
@@ -117,16 +195,16 @@ function calculate({ scroll }) {
     const initial = Number(data.gc_initial_bearing);
     const final = Number(data.gc_final_bearing);
 
-    document.getElementById('results').textContent = 'Your city coordinates: ' + data.city_coords;
+    document.getElementById('results').textContent = T.coords + ltr(data.city_coords);
 
     document.getElementById('rhumbResultsText').innerHTML = statsHtml([
-        ['Bearing angle', formatBearing(data.rhumb_bearing)],
-        ['Distance', formatDistance(data.rhumb_distance)],
+        [T.bearingAngle, formatBearing(data.rhumb_bearing)],
+        [T.distance, formatDistance(data.rhumb_distance)],
     ]);
     document.getElementById('greatCircleResultsText').innerHTML = statsHtml([
-        ['Initial bearing', formatBearing(initial)],
-        ['Final bearing', formatBearing(final)],
-        ['Distance', formatDistance(data.gc_distance)],
+        [T.initialBearing, formatBearing(initial)],
+        [T.finalBearing, formatBearing(final)],
+        [T.distance, formatDistance(data.gc_distance)],
     ]);
 
     document.getElementById('rhumbResults').style.display = 'block';
@@ -147,7 +225,7 @@ function calculate({ scroll }) {
         showCompass('compass2', bearing, '--gc');
     };
 
-    document.getElementById('startLabel').textContent = `${city}, ${country}`;
+    document.getElementById('startLabel').textContent = T.place(city, country);
     document.querySelector('.bearing-slider-container').classList.add('show');
 
     document.getElementById('rhumbNote').style.display = 'block';
@@ -182,8 +260,8 @@ function drawCompass(bearing, needleColor) {
     canvas.height = COMPASS_SIZE * dpr;
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', bearing === null
-        ? 'Compass'
-        : `Compass pointing ${Math.round(bearing)} degrees`);
+        ? T.compass
+        : T.compassPointing(Math.round(bearing)));
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     ctx.translate(COMPASS_SIZE / 2, COMPASS_SIZE / 2);
@@ -242,7 +320,7 @@ function drawCompass(bearing, needleColor) {
         const main = text.length === 1;
         ctx.font = main ? '600 18px system-ui, sans-serif' : '13px system-ui, sans-serif';
         ctx.fillStyle = text === 'N' ? accent : (main ? ink : muted);
-        ctx.fillText(text, 160 * Math.cos(a), 160 * Math.sin(a));
+        ctx.fillText(T.dial[text], 160 * Math.cos(a), 160 * Math.sin(a));
     });
 
     // Needle
@@ -301,7 +379,7 @@ animToggle.addEventListener('change', function() {
         document.body.classList.add('mode-animation');
         startAnimation();              // no city selected: replay the last calculated one
     } else {
-        document.getElementById('results').textContent = 'Select a country and city to see the animation.';
+        document.getElementById('results').textContent = T.selectForAnimation;
     }
 });
 // Always start with the switch off, even if the browser restores it after a reload
@@ -480,7 +558,7 @@ function drawScene(scene, f) {
         ctx.font = '600 12px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('North Pole', pole.x, pole.y - 6);
+        ctx.fillText(T.northPole, pole.x, pole.y - 6);
     }
 
     const start = project(view, path[0][0], path[0][1]);
@@ -500,7 +578,7 @@ function drawScene(scene, f) {
     ctx.strokeStyle = c.ink;
     ctx.lineWidth = 1;
     ctx.strokeRect(kaaba.x - 4.5, kaaba.y - 4.5, 9, 9);
-    drawLabel(ctx, kaaba, 'Makkah', c.ink, '600 12px system-ui, sans-serif');
+    drawLabel(ctx, kaaba, T.makkah, c.ink, '600 12px system-ui, sans-serif');
     ctx.globalAlpha = 1;
 
     // Moving point with local north (dashed) and heading (arrow)
@@ -528,8 +606,8 @@ function drawScene(scene, f) {
     // Readout under the globe
     const b = Math.round(here.bearing);
     const text = f >= 1
-        ? `Arrived · final bearing ${b}° ${bearingToDirection(b)}`
-        : `Bearing ${b}° ${bearingToDirection(b)} · ${Math.round(here.remaining).toLocaleString()} km to go`;
+        ? T.arrived(b, bearingToDirection(b))
+        : T.readout(b, bearingToDirection(b), formatNumber(here.remaining));
     if (scene.readout.textContent !== text) {
         scene.readout.textContent = text;
     }
@@ -543,8 +621,8 @@ function startAnimation() {
     const dpr = window.devicePixelRatio || 1;
 
     animState.scenes = [
-        ['anim1', data.paths.rhumb, '--rhumb', 'rhumb line'],
-        ['anim2', data.paths.gc, '--gc', 'great circle'],
+        ['anim1', data.paths.rhumb, '--rhumb', T.rhumbName],
+        ['anim2', data.paths.gc, '--gc', T.gcName],
     ].map(([id, path, colorVar, name]) => {
         const box = document.getElementById(id);
         box.innerHTML = '';
@@ -552,7 +630,7 @@ function startAnimation() {
         canvas.width = ANIM_SIZE * dpr;
         canvas.height = ANIM_SIZE * dpr;
         canvas.setAttribute('role', 'img');
-        canvas.setAttribute('aria-label', `Animation of the ${name} route from ${animState.city} to Makkah`);
+        canvas.setAttribute('aria-label', T.animLabel(name, animState.city));
         const ctx = canvas.getContext('2d');
         ctx.scale(dpr, dpr);
         const readout = document.createElement('p');
@@ -575,7 +653,7 @@ function startAnimation() {
             } catch (err) {
                 scene.failed = true;
                 console.error('Route animation failed:', err);
-                scene.readout.textContent = 'Animation error: ' + err.message;
+                scene.readout.textContent = T.animError + err.message;
             }
         });
     };

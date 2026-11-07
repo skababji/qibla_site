@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../static/kaaba.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>اتجاه القبلة في أمريكا الشمالية</title>
+    <link rel="alternate" hreflang="en" href="https://skababji.github.io/qibla_site/">
+    <link rel="alternate" hreflang="ar" href="https://skababji.github.io/qibla_site/ar/">
+</head>
+<body>
+    <nav class="lang-switch"><a href="../" hreflang="en" lang="en">English</a></nav>
+    <div class="container">
+        <div class="content">
+            <h1>القبلة في أمريكا الشمالية</h1>
+            <div class="text-content">
+                <p>ينبغي أن يكون اتجاه القبلة في أمريكا الشمالية نحو الشرق/الجنوب الشرقي، لا نحو الشمال الشرقي كما هو شائع وكما اعتمدته خطأً الغالبية العظمى من المساجد اليوم. وليس ذلك عن اعتقادٍ بأن الأرض مسطّحة أو عن إهمالٍ للعلم، بل لأن أيّ حساباتٍ يجب أن تتوافق مع المقاصد ومع <em>الوسائل</em> كما حدّدتها الشريعة.</p>
+
+                <p>ووفقًا للنصوص الشرعية والإجماع المبكر للمذاهب الأربعة المعتمدة، فإن نقطة المرجع في نظام الإحداثيات الكروية هي القطب الشمالي، لا مركز الأرض. وقد اعتمد العرب على النجوم لتحديد القطب الشمالي، ومن ثَمّ معرفة اتجاه القبلة. قال الله تعالى: <span class="verse" lang="ar" dir="rtl">وَعَلَامَاتٍ ۚ وَبِالنَّجْمِ هُمْ يَهْتَدُونَ</span>، والمعنى: أن الله جعل علاماتٍ واضحةً على الأرض (لا في باطنها)، ونجومًا (خارج الأرض) يهتدي بها الناس في الليل والنهار. ومن الثابت قطعًا في الشريعة أن اعتماد الجهات الأربع الأصلية إطارًا لتحديد القبلة صحيحٌ بلا ريب. وأيّ طريقةٍ، كالدائرة العظمى، تُعطي اتجاهًا ينحرف عن ذلك انحرافًا كبيرًا تُعدّ محلّ شكّ، ولا يجوز أن تحلّ محلّ الإطار المرجعي الذي حدّدته الشريعة.</p>
+
+                <p>لذلك فإنني ألتزم بالاتجاه <em>الثابت</em> لـ<strong>خط الاتجاه الثابت</strong> (Rhumb Line)، بدلًا من الاتجاه الابتدائي للدائرة العظمى، الذي يُهمل تمامًا الإطار المرجعي كما بيّنته الشريعة.</p>
+
+                <p>ومن الضروري التأكيد على أن حسابات الدائرة العظمى أو خط الاتجاه الثابت ليست لازمةً لتحديد اتجاه القبلة في أمريكا الشمالية. ففي الشريعة، وأيًّا كان موقع الإنسان على الأرض، لا يُشترط أبدًا العلم بالهندسة لمعرفة اتجاه القبلة. غير أنه إن اختار أحدٌ استخدام مثل هذه النماذج الرياضية، فعليه أن يتأكد من أن حساباته تتوافق مع الإطار المرجعي الأصلي للشريعة.</p>
+
+                <p class="readme-link">المعادلات الخاصة بالطريقتين، والشيفرة المصدرية، موجودة في ملف <a href="https://github.com/skababji/qibla_site#readme" target="_blank" rel="noopener">README على GitHub</a> (باللغة الإنجليزية).</p>
+
+                <p class="freestyle-element" id="signature"><span dir="ltr" lang="en">Samer El Kababji, PhD, P.Eng.</span><br><span class="signature-ar">مايو 2024 - لندن، أونتاريو</span></p>
+            </div>
+        </div>
+        <div class="sidebar">
+            <h1>احسب اتجاه القبلة</h1>
+            <div class="calc-form">
+                <select id="countrySelect" name="country" aria-label="البلد">
+                    <option value="">اختر بلدك</option>
+                </select>
+                <select id="citySelect" name="city" aria-label="المدينة" style="display: none;">
+                    <option value="">اختر مدينتك</option>
+                </select>
+                <div class="button-container">
+                    <button id="calculateButton" style="display: none">احسب الاتجاه</button>
+                </div>
+            </div>
+            <div id="results"></div>
+        </div>
+    </div>
+    <div class="compass-title-container">
+        <h2>مقارنة بين خط الاتجاه الثابت وخط الدائرة العظمى</h2>
+        <label class="view-switch" id="animSwitch">
+            <input type="checkbox" id="animToggle" role="switch" autocomplete="off">
+            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+            <span class="switch-text">عرض حركة المسار</span>
+        </label>
+    </div>
+    <div class="compass-container" id="compassContainer">
+        <div class="compass-content route-rhumb">
+            <div class="compass">
+                <h2>خط الاتجاه الثابت</h2>
+                <p class="verdict verdict-correct"><span class="verdict-main"><span class="verdict-icon" aria-hidden="true">✓</span>صحيح</span><span class="verdict-reason">الاتجاه يبقى ثابتًا</span></p>
+                <div id="compass1"></div>
+                <div class="route-anim" id="anim1"></div>
+            </div>
+            <div class="results-content" id="rhumbResults" style="display: none;">
+                <h3>النتائج</h3>
+                <p id="rhumbResultsText"></p>
+            </div>
+            <p class="note-text" id="rhumbNote" style="display: none;">ملاحظة: البوصلة <strong>لا</strong> تتحرك على طول المسار.</p>
+        </div>
+        <div class="compass-content route-gc">
+            <div class="compass">
+                <h2>خط الدائرة العظمى</h2>
+                <p class="verdict verdict-wrong"><span class="verdict-main"><span class="verdict-icon" aria-hidden="true">✗</span>غير صحيح</span><span class="verdict-reason">الاتجاه يتغير باستمرار</span></p>
+                <div id="compass2"></div>
+                <div class="route-anim" id="anim2"></div>
+            </div>
+            <div class="results-content" id="greatCircleResults" style="display: none;">
+                <h3>النتائج</h3>
+                <p id="greatCircleResultsText"></p>
+            </div>
+            <p class="note-text" id="greatCircleNote" style="display: none;">ملاحظة: البوصلة <strong>تتحرك</strong> على طول المسار.</p>
+        </div>
+    </div>
+
+    <div class="bearing-slider-container">
+        <h3>حرّك المؤشر لترى الفرق في الاتجاه أثناء السير على المسار المحسوب بخط الاتجاه الثابت مقارنةً بالمسار المحسوب بالدائرة العظمى</h3>
+        <div class="slider-labels">
+            <div id="startLabel" class="slider-label"></div>
+            <div id="endLabel" class="slider-label"><img src="../static/kaaba.svg" alt="الكعبة"></div>
+        </div>
+        <input type="range" id="bearingSlider" min="-360" max="360" value="0" aria-label="الموقع على مسار الدائرة العظمى">
+    </div>
+
+    <script src="../static/vendor/geographiclib-geodesic.min.js"></script>
+    <script src="../static/qibla.js"></script>
+    <script src="../static/scripts.js"></script>
+</body>
+</html>

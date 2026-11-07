@@ -1,6 +1,6 @@
 # Qibla in North America: Rhumb Line vs. Great Circle
 
-**Live site: https://skababji.github.io/qibla_site/**
+**Live site: https://skababji.github.io/qibla_site/** · [العربية](https://skababji.github.io/qibla_site/ar/)
 
 A small web app that calculates the Qibla direction from any city in the world
 using two methods, the **rhumb line** (loxodrome) and the **great circle** (orthodrome),
@@ -143,6 +143,7 @@ Every push to `main` rebuilds and publishes the site to GitHub Pages automatical
 | Path                                  | Purpose                                         |
 | ------------------------------------- | ----------------------------------------------- |
 | `web/index.html`, `web/static/`     | The web page, compasses, slider and route animation |
+| `web/ar/index.html`                 | The same page in Arabic                         |
 | `web/static/qibla.js`               | Rhumb line and great circle calculations        |
 | `build.py`                          | Builds the static site into `_site/`            |
 | `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |
