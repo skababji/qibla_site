@@ -689,12 +689,39 @@ button:hover {
     }
 }
 
-/* ---------- Language link ---------- */
-.lang-switch {
+/* ---------- Page header: Basmala and language link ---------- */
+.page-header {
+    position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 24px 0;
-    text-align: end;
+    padding: 28px 24px 4px;
+    text-align: center;
+}
+
+.basmala {
+    margin: 0;
+    font-family: "Amiri Quran", "Amiri", "Geeza Pro", "Traditional Arabic", serif;
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 3.1rem);
+    line-height: 1.7;
+    padding-bottom: 0.3em;  /* room for the deep descenders of the Quranic script */
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.basmala-translation {
+    margin: 2px 0 0;
+    font-family: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.35rem);
+    letter-spacing: 0.02em;
+    color: var(--muted);
+}
+
+.lang-switch {
+    position: absolute;
+    top: 20px;
+    inset-inline-end: 24px;
 }
 
 .lang-switch a {
@@ -704,8 +731,10 @@ button:hover {
     border-radius: 999px;
     background: var(--surface);
     color: var(--accent);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     font-weight: 600;
     font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 .lang-switch a:hover {
@@ -713,13 +742,24 @@ button:hover {
     border-color: var(--accent);
 }
 
-.lang-switch + .container {
-    padding-top: 12px;
+.page-header + .container {
+    padding-top: 16px;
 }
 
+/* Phones: language link on its own row so it never overlaps the Basmala */
 @media (max-width: 860px) {
-    .lang-switch {
+    .page-header {
         padding: 12px 16px 0;
+    }
+
+    .lang-switch {
+        position: static;
+        text-align: end;
+        margin-bottom: 4px;
+    }
+
+    .page-header + .container {
+        padding-top: 8px;
     }
 }
 
