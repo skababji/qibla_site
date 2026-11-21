@@ -158,6 +158,8 @@ Every push to `main` rebuilds and publishes the site to GitHub Pages automatical
 | ------------------------------------- | ----------------------------------------------- |
 | `web/index.html`, `web/static/`     | The web page, compasses, slider and route animation |
 | `web/ar/index.html`                 | The same page in Arabic                         |
+| `web/privacy/`, `web/ar/privacy/`   | Privacy policy for the Qibla iPhone app (English and Arabic) |
+| `web/static/app-icon.png`           | iPhone app icon shown in the app section        |
 | `web/static/qibla.js`               | Rhumb line and great circle calculations        |
 | `build.py`                          | Builds the static site into `_site/`            |
 | `worldcities.csv`                   | Cities and their coordinates for the dropdowns  |

@@ -913,3 +913,40 @@ dialog.popup-article {
         padding: 24px 20px 20px;
     }
 }
+
+/* ---------- iPhone app promo ---------- */
+.app-promo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+    padding: 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.app-promo img {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+}
+
+.app-promo p {
+    margin: 0;
+}
+
+.app-promo-title {
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px !important;
+}
+
+/* ---------- Privacy policy pages ---------- */
+.policy h2 {
+    font-size: 1.15rem;
+    text-align: start;
+    color: var(--accent);
+    margin: 28px 0 8px;
+}
